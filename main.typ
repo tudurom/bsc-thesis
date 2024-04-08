@@ -15,8 +15,19 @@
 }
 #set heading(numbering: numberFn)
 #show par: set block(spacing: 0.65em, width: 15cm, height: 22cm)
+#show heading: set block(above: 1.4em, below: 1em)
+#set page(paper: "a4", margin: (x: 4cm, top: 2.5cm, bottom: 2.5cm + 0.25in))
 
 #include "cover.typ"
+
+#set page(numbering: "1")
+#pad(x: 1em)[
+  #set par(justify: true)
+  #align(center, heading(outlined: false, level: 3, numbering: none)[Abstract])
+
+  #lorem(50)
+]
+#pagebreak()
 
 #show outline.entry: outrageous.show-entry.with(
   ..outrageous.presets.typst,
@@ -25,17 +36,45 @@
   vspace: (1.5em, none)
 )
 #outline(indent: auto)
+#pagebreak(weak: true)
 
 #set par(justify: true, leading: 0.65em, first-line-indent: 10pt)
 
-= Abstract
-== Xd
+= Introduction
+
+#lorem(50) #cite(<ddc_paper>)
+
+#lorem(30) #cite(<trusting_trust>)
+
+#lorem(100)
+
 #lorem(300)
 
-= Introduction
-= Background
-= Problem
-= Solution
-= Concluding Remarks and Future Work
+= Method
+
+#lorem(300)
+
+#lorem(300)
+
+= Results
+= Discussion
+= Future Work
+= Conclusion
 = Related Work
-= References
+#pagebreak(weak: true)
+#heading(outlined: false, numbering: none)[References]
+
+#bibliography(title: none, "works.bib")
+#pagebreak(weak: true)
+
+#heading(outlined: false, numbering: none)[Appendix]
+
+```c
+#include <stdio.h>
+
+int main() {
+  printf("Hello, world!\n");
+
+  return 0;
+}
+```
