@@ -4,12 +4,6 @@
 
 #set text(size: 11pt, lang: "en", region: "gb")
 #let numberFn(..numArgs) = {
-  // let nums = numArgs.pos()
-  // if nums.len() == 1 {
-  //   str(nums.first())
-  // } else {
-  //   str(nums.map(str).join(".", last: "."))
-  // }
   numbering("1.1", ..numArgs)
   h(0.75em)
 }
@@ -25,7 +19,19 @@
   #set par(justify: true)
   #align(center, heading(outlined: false, level: 3, numbering: none)[Abstract])
 
-  #lorem(50)
+  The software supply chain as we know it today is based
+  on implicit trust present at multiple levels:
+  trusting that (dependent) code is not malicious,
+  and trusting that the code matches the trusted binaries.
+  The “Trusting Trust” attack, popularised by Ken Thomspon, showed that we cannot fully trust code that
+  is not written and compiled by ourselves, because of the risk of interference coming
+  from self-replicating compiler attacks.
+  In this work, I show that a self-replicating compiler attack is viable
+  even when using a fully deterministic and reproducible compiler,
+  for which we can independently verify that the compiler binary matches its source code,
+  using the Go compiler as an example.
+  I also show that this attack is highly impractical, despite its possibility,
+  and successfully detect a hidden self-reproducing compiler attack.
 ]
 #pagebreak()
 
