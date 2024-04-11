@@ -1,5 +1,6 @@
-#align(center)[
+#context align(center)[
   #set par(justify: false)
+  #set page(margin: auto)
   #image("vu-griffioen.svg", height: 28mm)
   #v(1.5cm)
   #text(1.5em)[#strike[Bachelor Thesis] Research Proposal]
@@ -10,15 +11,19 @@
   #v(0.4cm)
   #line(length: 100%)
   #v(1.5cm)
+  #let studentId = [[_2728722_]]
+  #let renderedStudentId = text(size: super.size, studentId)
   #text(1.5em, grid(
-    columns: (2.5cm, 5cm, 3cm),
+    columns: (measure(renderedStudentId).width + 10pt, 2.5cm, 8cm, 2.5cm),
     rows: (auto,),
-    align: (left, center, right),
+    align: (left, left, center, right),
     gutter: 5pt,
+    grid.cell[],
     grid.cell[*Author*:],
-    grid.cell[Tudor-Ioan Roman],
-    grid.cell[(2728722)],
+    grid.cell[Tudor-Ioan Roman#super(studentId)],
+    grid.cell[],
   ))
+  // #text(1.5em, align(center)[Tudor-Ioan Roman])
   #v(1.5cm)
   #grid(
     columns: (auto,) * 3,
