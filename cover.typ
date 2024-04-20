@@ -7,11 +7,11 @@
   #v(1.5cm)
   #line(length: 100%)
   #v(0.4cm)
-  #text(2em)[*Protecting Against the Thompson Attack \ in The Context of Reproducible Builds*]
+  #text(1.75em)[*Protecting Against the "Trusting Trust" Attack in The Context of Reproducible Builds*]
   #v(0.4cm)
   #line(length: 100%)
   #v(1.5cm)
-  #let studentId = [[_2728722_]]
+  #let studentId = $[2728722]$
   #let renderedStudentId = text(size: super.size, studentId)
   #text(1.5em, grid(
     columns: (measure(renderedStudentId).width + 10pt, 2.5cm, 8cm, 2.5cm),
@@ -24,7 +24,6 @@
     grid.cell[],
   ))
   // #text(1.5em, align(center)[Tudor-Ioan Roman])
-  #v(1.5cm)
   #grid(
     columns: (auto,) * 3,
     rows: (auto,) * 3,
