@@ -50,7 +50,11 @@
 
 #set par(justify: true, leading: 0.65em, first-line-indent: 10pt)
 
-#let todo(body) = box(inset: 0.5em, stroke: red, text(fill: red, smallcaps([*To Do* ])+body))
+#let todo(body) = box(inset: 0.5em, stroke: red)[
+  #set text(fill: red)
+  #smallcaps([*To Do* ])
+  #body
+]
 #let unix = smallcaps[Unix]
 
 = Introduction
@@ -126,7 +130,7 @@ I pose the following research questions:
 
 In the following subsections of this introduction,
 I will further describe the background and the mode of operation
-of the Thompson attack and of reproducible binaries in more detail.
+of the Thompson attack and of reproducible builds in more detail.
 @method describes the assumptions that narrow down the actions we can take
 to defend against this attack, in order of practicality,
 and present a practical setup in which the Thompson attack can be
@@ -159,9 +163,9 @@ In his speech #cite(<trusting_trust>), Thompson
 presents the idea of introducing malicious behaviour
 in a program by modifying a compiler to insert special code
 when it detects that it is compiling the target.
-He then highlights the ability of self-hosting compilers
+He then highlights the ability of self-hosting
 #footnote[Compilers that can compile themselves.]
-to learn:
+compilers to learn:
 after a new feature, or language construct, is implemented
 in the source code of a compiler, it can be leveraged
 in a newer version of the compiler code without
@@ -179,7 +183,10 @@ strings in the compiler code itself, because the executable
 of version 2.0 will be able to handle them.
 
 #figure(
-  caption: [The two kinds of string literals in Go: interpreted ("normal") and raw ("multi-line")]
+  caption: [
+    The two kinds of string literals in Go: interpreted ("normal") and raw ("multi-line")
+    #cite(<gospec>)
+  ]
 )[
   ```go
   fmt.Println("Printing multiple lines\nwith a normal\nstring literal\n")
@@ -200,7 +207,7 @@ be compiled from clean source-code using an attacked binary,
 the resulting binary will still contain the attack, even though
 no trace of it is present in the source code.
 
-This kind of attack was previously mentioned in
+The aforementioned attack was previously mentioned in
 an evaluation of the security of Multics #cite(<airforce>)—the predecessor of #unix—performed by the United States Air Force in 1974, 10 years prior to Thompson's lecture,
 #footnote[This report can be the “Unknown Air Force Document” referenced by Thompson.] in which the authors describe the possibility of developing a backdoor.
 #footnote[The authors use the term “trap door”.] In a follow-up article written by the same authors #cite(<airforce_followup>, supplement: [p.~130]),
@@ -209,17 +216,85 @@ and thus demonstrating the significance of this class of attacks.
 
 #todo[Describe XCodeGhost and other similar attacks as contemporary instances.]
 
-== Reproducible Binaries and Bootstrapping
+== Reproducible Builds and Bootstrapping
+
+#todo[
+  Introduce reproducible builds ("independently-verifiable path from source to binary code").
+
+  Introduce Diverse Double-Compiling, and why it requires (or, can work) with reproducible compiler builds.
+
+  Write about how trust is still needed even when using reproducible builds,
+  because of the cyclic dependency graph in most software which requires using binary blobs (that we trust)
+  ⇒ relevant to this thesis.
+
+  Importance of bootstrappability (having a dependency tree instead of a graph, basically)
+  is important to avoid "trusting trust" attacks:
+  no binary blobs, or blobs outside the scope of a project, thus trusted;
+  Go compiler is bootstrappable: https://go.dev/blog/rebuild
+
+  $ "C" &-> "Go 1.4" \ &-> "A couple other Go versions" \ &-> "Go 1.21 (first reproducible version)" \ &-> "Go 1.22 (latest)" $
+
+]
 
 = Method <method>
 
-#lorem(300)
+#todo[
+  First step: make hacked Go compiler.
+  I make a self-reproducing attack against the Go compiler and the SHA256 function.
+  If time allows, I extend it to `fmt.Println` and `os.ReadFile`.
+  The hack will check if the SHA256 output equals the hash of the hacked compiler,
+  and output the hash of the real compiler instead. We cannot embed this hash in the hack, what do we do?
+  We hash `argv[0]` first of course. Real impact: recommended way to test the reproducibility of the Go
+  compiler is to compile from source a Go program. Attacking the SHA256 function should make
+  this program report to the user that the compiler is fine.
 
-#lorem(300)
+  Protection through scenarios:
+
+  *Typical scenario*~~I download a software build, I want to compile it myself
+  to verify it. I compile the software, and check the hashes; _I trust the hash_
+
+  *Hash result is not trusted*~~I copy the artefact to another system (or more) and run the hash there.
+  Why hash when I can just compare the files byte-by-byte? Because a hash is a value I can compare.
+  Comparison is equal/not-equal, or equal/diff. Much easier to spoof, by making an attack that makes the diff empty.
+
+  *Unable to copy to another system (secret code)*~~Code hash algorithm by hand; if attack, the algorithm cannot be detected.
+
+  *Communication of hash to the user is not trusted*~~(hack in the `Println`, or daemon that scans files
+  for hash of attacked compiler binary—reproducible compiler, thus reproducible hacked compiler too) code hash algorithm in another language.
+
+  *File handling not trusted*~~(file API reads non-malicious compiler when it detects that the target is the malicious one) code hash algorithm in another language.
+
+  *I don't trust another language*~~Diverse Double-Compiling. Works both when communicating the hash is not trusted, and when file handling is not trusted.
+  It is valid to not trust another language, yet trust another compiler, which is what DDC needs.
+  DDC needs not that we trust another compiler not to be hacked, but to not be hacked in the same way as the other.
+  So we can both not trust another language, yet apply DDC. Case in point: bootstrapping the Go compiler
+  needs a C compiler. C is bad and unsafe, we don't trust it (because we are the AIVD or something).
+
+  "Communication of hash to the user" concerns the output of the hash.
+  "File handling" refers to the input of the file comparison algorithm, hash or simple byte-by-byte comparison.
+
+  If my reasoning turns out to be nonsense, at least I can show the attack and the Diverse Double-Compiling
+  and show that the attack is really impractical, right?
+]
 
 = Results <results>
+
+#lorem(30)
+
+#lorem(60)
+
+#lorem(90)
+
 = Related Work <related_work>
+
+Placed here close to the conclusion as clickbait.
+
 = Conclusion
+
+#lorem(30)
+
+#lorem(69)
+
 #pagebreak(weak: true)
 #heading(outlined: false, numbering: none)[References]
 
