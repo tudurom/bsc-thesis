@@ -16,6 +16,7 @@
         typst
         typst-live
         pdf2svg
+        ltex-ls
       ];
       TYPST_FONT_PATHS = "./OTF";
     };

@@ -1,0 +1,13 @@
+[[language]]
+name = "typst"
+language-servers = [{ name = "ltex"}, {name = "typst-lsp"}]
+file-types = ["typ"]
+scope = "text.typst"
+roots = []
+
+[language-server.ltex]
+command = "ltex-ls"
+
+[language-server.ltex.config.ltex]
+language = "en-GB"
+disabledRules = {"en-GB" = ["OXFORD_SPELLING_Z_NOT_S", "WHITESPACE_RULE"]}
