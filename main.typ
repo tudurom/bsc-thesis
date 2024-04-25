@@ -31,7 +31,7 @@
   The “Trusting Trust” attack, popularised by Ken Thompson, showed that we cannot fully trust code that
   is not written and compiled by ourselves, because of the risk of interference coming
   from self-replicating compiler attacks.
-  In this work, I show that a self-replicating compiler attack is viable
+  In this work, I show that a self-replicating compiler attack is possible
   even when using a fully deterministic and reproducible compiler,
   for which we can independently verify that the compiler binary matches its source code,
   using the Go compiler as an example.
@@ -70,7 +70,7 @@ our current way of using computer systems depends on trusting that the semantics
 The translation step is performed by a computer program called a _compiler_—more often than not the result of such a translation itself—in a process named _compilation_.
 
 Ken Thompson, of #unix fame, raised awareness of a self-replicating compiler attack in the lecture he gave
-upon receiving the Turing Award #cite(<trusting_trust>). In his lecture, he highlights the possibility for an attacker to breach the security of a computer system
+upon receiving the Turing Award @trusting_trust. In his lecture, he highlights the possibility for an attacker to breach the security of a computer system
 by modifying the compiler to insert malicious code when compiling a targeted security-sensitive source code file. The compiler is further altered to
 insert the code that modifies the targeted program in newer versions of the compiler
 itself. 
@@ -85,7 +85,7 @@ attack, based on the title of his lecture:
 Free and open-source software constitutes an important part of the
 current software supply chain,
 owing to the ease of reusing code in other software projects
-#cite(<surviving_software_deps>).
+@surviving_software_deps @reviewofosssupplychains.
 As open-source code can depend upon multiple other open-source projects,
 in turn with their own dependencies,
 complex dependency chains are formed upon weak trust relations,
@@ -99,7 +99,7 @@ consume this software by downloading binary executables directly #citationNeeded
 These binaries cannot be verified to be the direct product of the source code that is advertised to be used in their compilation, and as a result,
 the distributor of the binaries is fully trusted to not interfere with the executables.
 As a solution to this problem, a group of free software projects
-formed the Reproducible Builds #cite(<ReproducibleBuildsOrg>) initiative, that aims to adapt software projects and build systems to
+formed the Reproducible Builds @ReproducibleBuildsOrg initiative, that aims to adapt software projects and build systems to
 generate identical build outputs, given the same compilation conditions and instructions.
 This way, compiled programs are verifiable: anybody can take
 the source code of a reproducible program, compile it on their system,
@@ -144,9 +144,9 @@ There are multiple layers between the source code of a program
 we want to execute, as written by the authors, and the actual
 execution on the processor. The translation of
 source code to another form that can be consumed
-by a lower layer is done by compilers #cite(<dragonbook>).
+by a lower layer is done by compilers @dragonbook.
 @v8_pipeline highlights the stages in the code compilation and interpretation
-pipeline of the V8 JavaScript engine #cite(<v8website>), used in
+pipeline of the V8 JavaScript engine @v8website, used in
 the Chrome™ browser and Node.js runtime.
 Depending on the source and target languages, the prefered name for such a program
 might be different, as is the case for assemblers—transforming assembly language
@@ -156,10 +156,12 @@ in the scope of this work, I will always use the general term "compiler".
 
 #figure(
   image("v8_pipeline.png", width: 80%),
-  caption: [V8 JavaScript Engine Pipeline #cite(<v8bytecode>)],
+  caption: [V8 JavaScript Engine Pipeline @v8bytecode],
 ) <v8_pipeline>
 
-In his speech #cite(<trusting_trust>), Thompson
+#let ver(x) = $sans(#x)$
+
+In his speech @trusting_trust, Thompson
 presents the idea of introducing malicious behaviour
 in a program by modifying a compiler to insert special code
 when it detects that it is compiling the target.
@@ -174,18 +176,18 @@ anymore, as the compiler binary now implements the feature.
 One example of this behaviour would be support for
 multi-line string literals—a string literal that contains a
 string spanning over multiple lines, shown in @go_strings.
-Version 1.0 of a fictional compiler may only support
+Version #ver[1.0] of a fictional compiler may only support
 strings written over a single line of code. I can
-then add support for multi-line strings in version 2.0,
+then add support for multi-line strings in version #ver[2.0],
 without using this feature in the implementation. Later,
-in a further version 3.0, I can now make use of multi-line
+in a further version #ver[3.0], I can now make use of multi-line
 strings in the compiler code itself, because the executable
-of version 2.0 will be able to handle them.
+of version #ver[2.0] will be able to handle them.
 
 #figure(
   caption: [
     The two kinds of string literals in Go: interpreted ("normal") and raw ("multi-line")
-    #cite(<gospec>)
+    @gospec
   ]
 )[
   ```go
@@ -208,9 +210,12 @@ the resulting binary will still contain the attack, even though
 no trace of it is present in the source code.
 
 The aforementioned attack was previously mentioned in
-an evaluation of the security of Multics #cite(<airforce>)—the predecessor of #unix—performed by the United States Air Force in 1974, 10 years prior to Thompson's lecture,
-#footnote[This report can be the “Unknown Air Force Document” referenced by Thompson.] in which the authors describe the possibility of developing a backdoor.
-#footnote[The authors use the term “trap door”.] In a follow-up article written by the same authors #cite(<airforce_followup>, supplement: [p.~130]),
+an evaluation of the security of Multics @airforce—the predecessor of #unix—performed by the United States Air Force in 1974, 10 years prior to Thompson's lecture,
+in which the authors describe the possibility of developing a self-perpetuating backdoor
+#footnote[The authors use the term “trap door”.]
+implanted in the PL/I compiler used to compile the Multics kernel.
+#footnote[The authors use the term "supervisor".]
+In a follow-up article written by the same authors #cite(<airforce_followup>, supplement: [p.~130]),
 Karger and Schell relate that an instance of this kind of backdoor that they created, described in the original report, was later found in a computer inside the headquarters of the US Department of Defence, despite the fact that the attack was implanted at another institution, outside the US Air Force,
 and thus demonstrating the significance of this class of attacks.
 

@@ -14,7 +14,6 @@
       packages = with pkgs; [
         typst-lsp
         typst
-        typst-live
         pdf2svg
         ltex-ls
       ];
