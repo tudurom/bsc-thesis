@@ -17,7 +17,12 @@
         pdf2svg
         ltex-ls
       ];
-      TYPST_FONT_PATHS = "./OTF";
+      TYPST_FONT_PATHS = "./OTF:" + (with pkgs;
+        lib.makeSearchPath "share/fonts/truetype"
+          [
+            charis-sil
+            go-font
+          ]);
     };
   };
 }

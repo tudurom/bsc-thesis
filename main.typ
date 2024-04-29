@@ -2,6 +2,7 @@
 // #set text(font: "Charter")
 #set text(font: "Charis SIL")
 #show math.equation: set text(font: "Euler Math")
+#show raw: set text(font: "Go Mono")
 
 #set text(size: 11pt, lang: "en", region: "gb")
 #let numberFn(..numArgs) = {
@@ -15,10 +16,6 @@
 
 #include "cover.typ"
 
-#let citationNeeded = link("https://www.youtube.com/watch?v=dQw4w9WgXcQ", text(fill: red, smallcaps[[citation needed]]))
-
-#let tt = [_trusting trust_]
-
 #set page(numbering: "1")
 #pad(x: 1em)[
   #set par(justify: true)
@@ -31,11 +28,13 @@
   The “Trusting Trust” attack, popularised by Ken Thompson, showed that we cannot fully trust code that
   is not written and compiled by ourselves, because of the risk of interference coming
   from self-replicating compiler attacks.
-  In this work, I show that a self-replicating compiler attack is possible
+  In this work, I take the Go compiler as an example and show that a self-replicating compiler attack is possible
   even when using a fully deterministic and reproducible compiler,
-  for which we can independently verify that the compiler binary matches its source code,
-  using the Go compiler as an example.
-  I also show that this attack is highly impractical—despite its possibility—and successfully detect a hidden self-reproducing compiler attack.
+  for which we can independently verify that the compiler binary matches its source code.
+  I also show that the attack is trivial to detect using a second compiler,
+  and that the attack can still be easy to detect when the attacked
+  compiler is the only one available. 
+  // I also show that this attack is highly impractical—despite its possibility—and successfully detect a hidden self-reproducing compiler attack.
 ]
 #pagebreak()
 
@@ -50,24 +49,41 @@
 
 #set par(justify: true, leading: 0.65em, first-line-indent: 10pt)
 
-#let todo(body) = box(inset: 0.5em, stroke: red)[
-  #set text(fill: red)
+#show ref: it => {
+  let el = it.element
+  if el != none and el.func() == heading {
+    link(el.location())[Section #numbering("1.1", ..counter(heading).at(el.location()))]
+  } else {
+    it
+  }
+}
+
+#let todo(body) = [
+  #set text(fill: maroon)
   #smallcaps([*To Do* ])
   #body
 ]
 #let unix = smallcaps[Unix]
+#let citationNeeded = link("https://www.youtube.com/watch?v=dQw4w9WgXcQ", text(fill: red, smallcaps[[citation needed]]))
+#let tt = [_trusting trust_]
 
 = Introduction
 
-Computer programs require a translation step from _source code_ to _machine code_
-before they can be executed by the computer. These two forms of code are not isomorphic:
-_source code_ is written in a _programming language_, which is a set of notations that express
-the logic and reasoning of the programmer when developing the algorithms which the computer program is based upon.
-Contrast this with _machine code_, which comprises instructions specifically targeted to the platform
-running the program, often unique to the combination of processor architecture and operating system.
-This second form of a computer program is stripped of information describing its semantics;
-our current way of using computer systems depends on trusting that the semantics of the source code match those of the generated machine code.
-The translation step is performed by a computer program called a _compiler_—more often than not the result of such a translation itself—in a process named _compilation_.
+The source code of a program undergoes multiple transformations
+before it becomes executable code, which can be later run by the processor.
+Each intermediate form is stripped of information describing its semantics;
+our current way of using computer systems depends on trusting that
+the semantics of the source code match those of the generated machine code.
+
+// Computer programs require a translation step from _source code_ to _machine code_
+// before they can be executed by the computer. These two forms of code are not isomorphic:
+// _source code_ is written in a _programming language_, which is a set of notations that express
+// the logic and reasoning of the programmer when developing the algorithms which the computer program is based upon.
+// Contrast this with _machine code_, which comprises instructions specifically targeted to the platform
+// running the program, often unique to the combination of processor architecture and operating system.
+// This second form of a computer program is stripped of information describing its semantics;
+// our current way of using computer systems depends on trusting that the semantics of the source code match those of the generated machine code.
+// The translation step is performed by a computer program called a _compiler_—more often than not the result of such a translation itself—in a process named _compilation_.
 
 Ken Thompson, of #unix fame, raised awareness of a self-replicating compiler attack in the lecture he gave
 upon receiving the Turing Award @trusting_trust. In his lecture, he highlights the possibility for an attacker to breach the security of a computer system
@@ -79,7 +95,7 @@ the malicious code will be proliferated in the resulting executable;
 because of the non-triviality of comparing source code to the executable,
 the attack would go unnoticed.
 This attack is commonly referred to as the "trusting trust"
-attack, based on the title of his lecture:
+attack, based on the title of Thompson's lecture:
 "Reflections on Trusting Trust."
 
 Free and open-source software constitutes an important part of the
@@ -94,12 +110,12 @@ no warranties, and no contracts and arrangements are needed
 to integrate them into other works #citationNeeded.
 Yet, one of the great advantages of open-source software is that,
 in theory, anybody can verify the quality and security of the source code,
-which is, public by definition. In practice, most people still
+which is public by definition. In practice, most people still
 consume this software by downloading binary executables directly #citationNeeded.
 These binaries cannot be verified to be the direct product of the source code that is advertised to be used in their compilation, and as a result,
 the distributor of the binaries is fully trusted to not interfere with the executables.
 As a solution to this problem, a group of free software projects
-formed the Reproducible Builds @ReproducibleBuildsOrg initiative, that aims to adapt software projects and build systems to
+formed the Reproducible Builds @ReproducibleBuildsOrg @reproduciblebuilds initiative, that aims to adapt software projects and build systems to
 generate identical build outputs, given the same compilation conditions and instructions.
 This way, compiled programs are verifiable: anybody can take
 the source code of a reproducible program, compile it on their system,
@@ -111,32 +127,25 @@ With a compiler that generates reproducible binaries, even when compiling itself
 compile itself, check that it is identical to the official binary,
 and be at peace that no self-replicating compiler attack was done on us?
 What changed since Thompson delivered his speech in 1984, that protects us from this threat?
-I pose the following research questions:
-
-#box(inset: 1em)[
-  #set enum(numbering: n => strong(smallcaps("RQ"+str(n))+":"))
-  + How to perform a self-reproducing compiler attack, despite a reproducible toolchain?
-  + How to protect from such an attack, in the context of reproducible builds?
-]
-
-#show ref: it => {
-  let el = it.element
-  if el != none and el.func() == heading and el.level == 1 {
-    link(el.location())[Section #numbering("1", ..counter(heading).at(el.location()))]
-  } else {
-    it
-  }
-}
 
 In the following subsections of this introduction,
 I will further describe the background and the mode of operation
-of the Thompson attack and of reproducible builds in more detail.
-@method describes the assumptions that narrow down the actions we can take
-to defend against this attack, in order of practicality,
-and present a practical setup in which the Thompson attack can be
-done against the Go toolchain.
+of the "trusting trust" attack and of reproducible builds in more detail,
+complete with the research questions and the scope of this thesis.
+@method describes a self-reproducing attack inserted in the Go compiler,
+the reasons for choosing this toolchain for the scope of this paper,
+and measures taken to hide the attack. I will also describe
+a method of trivially discovering the attack with the help
+of a second compiler that is not affected by the attack,
+and how this second compiler can be easily obtained thanks to
+Go's bootstrapping process. On top of that, I will propose
+measures that can be taken by a concerned victim in the absence
+of a second compiler, in order to stay protected.
 @results shows the mode of operation of the attack proof-of-concept
-that I developed, and the result of the defences proposed in @method.
+that I developed, the results of the attack discovery method involving a second
+compiler, and the outcomes to the defences proposed in @method.
+In @related_work, I will have a look at other works written on related subjects,
+followed by a conclusion of this thesis in @conclusion.
 
 == The "Trusting Trust" Attack
 
@@ -147,7 +156,8 @@ source code to another form that can be consumed
 by a lower layer is done by compilers @dragonbook.
 @v8_pipeline highlights the stages in the code compilation and interpretation
 pipeline of the V8 JavaScript engine @v8website, used in
-the Chrome™ browser and Node.js runtime.
+the Chrome™ browser and Node.js runtime;
+each arrow represents a different program transformation step.
 Depending on the source and target languages, the prefered name for such a program
 might be different, as is the case for assemblers—transforming assembly language
 to machine code—or JavaScript module bundlers, such as Webpack, which
@@ -210,8 +220,8 @@ the resulting binary will still contain the attack, even though
 no trace of it is present in the source code.
 
 The aforementioned attack was previously mentioned in
-an evaluation of the security of Multics @airforce—the predecessor of #unix—performed by the United States Air Force in 1974, 10 years prior to Thompson's lecture,
-in which the authors describe the possibility of developing a self-perpetuating backdoor
+an evaluation of the security of Multics @airforce—the predecessor of #unix—performed by the United States Air Force in 1974, 10 years prior to Thompson's lecture.
+The authors of the report describe the possibility of developing a self-perpetuating backdoor
 #footnote[The authors use the term “trap door”.]
 implanted in the PL/I compiler used to compile the Multics kernel.
 #footnote[The authors use the term "supervisor".]
@@ -221,7 +231,7 @@ and thus demonstrating the significance of this class of attacks.
 
 #todo[Describe XCodeGhost and other similar attacks as contemporary instances.]
 
-== Reproducible Builds and Bootstrapping
+== Reproducible Builds
 
 #todo[
   Introduce reproducible builds ("independently-verifiable path from source to binary code").
@@ -232,61 +242,141 @@ and thus demonstrating the significance of this class of attacks.
   because of the cyclic dependency graph in most software which requires using binary blobs (that we trust)
   ⇒ relevant to this thesis.
 
-  Importance of bootstrappability (having a dependency tree instead of a graph, basically)
-  is important to avoid "trusting trust" attacks:
-  no binary blobs, or blobs outside the scope of a project, thus trusted;
-  Go compiler is bootstrappable: https://go.dev/blog/rebuild
-
-  $ "C" &-> "Go 1.4" \ &-> "A couple other Go versions" \ &-> "Go 1.21 (first reproducible version)" \ &-> "Go 1.22 (latest)" $
-
+  Bootstrapping is a solution, but it is not the scope of this thesis, see @bootstrapping.
 ]
+
+Users of open-source software can be targetted by attacks
+that inject malicious code during the build process @taxonomy_supply_chains @reviewofosssupplychains.
+Those can become victims either by just using the compromised software packages—in Linux distributions, for example—or
+by using software with compromised dependencies.
+Even though the distribution media of the software packages can be trusted to not
+tamper the files they offer—by
+verifying hashes or digital signatures of known distributors—there is a
+gap between trusting the source code and trusting the binary files that are later distributed:
+source code is (relatively) easy to examine and to trust, especially in the context
+of open-source software @peerreview, yet the result of its compilation
+is not as easily verifiable.
+
+Reproducible builds @reproduciblebuilds allow us to verify
+that the executable version of a program matches its source code,
+by ensuring that compiling the source code yields the same results
+irrespective of the build environment.
+If we get a mismatch in results, either the source code is different—it's not the code we expect—or
+at least one of the dependencies is different—the environment is not the same.
+In the context of self-reproducing compiler attacks,
+if I want to compile the clean source code of
+a (reproducible) compiler and the outputs are matching,
+that means the $(sans("source"), sans("compiler"))$ pairs are identical.
+If both parties have the same attacked compiler, they cannot know
+just by reproducing it.
+
+In this work, I will abide by the reproducible build definition as
+formulated by Lamb & Zacchiroli @reproduciblebuilds:
+
+#figure(kind: "definition", supplement: [Definition])[
+  #quote(block: true, attribution: <reproduciblebuilds>)[  
+  #set text(style: "italic")
+  *Definition 1.* The build process of a software
+  product is reproducible if, after designating a
+  specific version of its source code and all of its
+  build dependencies, every build produces bit-for-bit
+  identical artifacts, no matter the environment in which the build is performed.
+  ]
+] <def_reproducible_builds>
+
+Reproducible Builds do not solve the problem of trust in software builds completely
+when it comes to (self-hosting) compilers: to build a compiler, you need a previous version of itself.
+We can expand this cycle by compiling compiler $sans(A)$ with an older compiler
+$sans(B)$ which is in turn compiled by an even older compiler $sans(C)$, until
+we reach version $frak(X)$,
+which is not written in the language that it targets, and thus does not depend on
+an earlier version of itself.
+The longer the chain, the higher the chance that we cannot build compiler $frak(X)$
+anymore, either because one of the dependencies cannot run in our build environment—for instance
+when it's so old that it does not support our operating system or CPU architecture—or because one of the dependencies cannot even be found, or even $frak(X)$ itself.
+Another obstacle can be time: if the chain is too long, the time required
+to build all its components can be unfeasibly high.
+To make this process feasible, the binary version of a more recent, known to work, version of the compiler is used.
+We cannot, however, track the way these previous versions have been generated,
+hence the weaker trust. Special care can be taken when engineering a software system
+to make sure that it is easily buildable without cyclic dependencies, such as
+by maintaining a second version of a compiler implemented in a different language,
+as is the case of Go with its alternative implementation `gccgo`.
+#footnote[https://gcc.gnu.org/onlinedocs/gccgo/]
+These programs, for which not just the executable is reproducible, but also
+the build tools involved in its production, are said to be bootstrappable @bootstrappableorg.
+#todo[This is not the scope of this thesis.]
+
+== Research Questions and The Scope of This Thesis
+
+#todo[Motivate questions]
+
+I pose the following research questions:
+
+#box(inset: 1em)[
+  #set enum(numbering: n => strong(smallcaps("RQ"+str(n))+":"))
+  + How to perform a self-reproducing compiler attack, despite a reproducible toolchain?
+  + How to protect from such an attack, in the context of reproducible builds?
+]
+
+#todo[Outline of paper]
 
 = Method <method>
 
+== The Attack
+
+#todo[Describe `gorebuild` and why it's feasible to be attacked (verification tool written in the same language as the compiler).]
+
+== Diverse Double Compiling
+
+#todo[Describe set up of DDC experiment]
+
+== Defending with only one compiler available
+
 #todo[
-  First step: make hacked Go compiler.
-  I make a self-reproducing attack against the Go compiler and the SHA256 function.
-  If time allows, I extend it to `fmt.Println` and `os.ReadFile`.
-  The hack will check if the SHA256 output equals the hash of the hacked compiler,
-  and output the hash of the real compiler instead. We cannot embed this hash in the hack, what do we do?
-  We hash `argv[0]` first of course. Real impact: recommended way to test the reproducibility of the Go
-  compiler is to compile from source a Go program. Attacking the SHA256 function should make
-  this program report to the user that the compiler is fine.
+  Describe lack of confidence in hashes, and the three points in which they can go wrong:
+  - Input of hash (file operations are bugged)
+  - Calculation of hash (hash function detects hash of bugged compiler, replaces it with the legitimate one)
+  - Output of hash (print operations are bugged)
 
-  Protection through scenarios:
+  Those three places might be bugged, but an attacker cannot make a general bug.
+  Therefore, a party can make a private implementation of a verifier program
+  (i.e. alternative to `gorebuild`) that can, for example,
+  do simple transformations to the input and output, and use a hand-made hash implementation.
+  This verifier program must be kept private, and maybe even altered from time to time,
+  to prevent an attacker from (also) targeting it.
 
-  *Typical scenario*~~I download a software build, I want to compile it myself
-  to verify it. I compile the software, and check the hashes; _I trust the hash_
-
-  *Hash result is not trusted*~~I copy the artefact to another system (or more) and run the hash there.
-  Why hash when I can just compare the files byte-by-byte? Because a hash is a value I can compare.
-  Comparison is equal/not-equal, or equal/diff. Much easier to spoof, by making an attack that makes the diff empty.
-
-  *Unable to copy to another system (secret code)*~~Code hash algorithm by hand; if attack, the algorithm cannot be detected.
-
-  *Communication of hash to the user is not trusted*~~(hack in the `Println`, or daemon that scans files
-  for hash of attacked compiler binary—reproducible compiler, thus reproducible hacked compiler too) code hash algorithm in another language.
-
-  *File handling not trusted*~~(file API reads non-malicious compiler when it detects that the target is the malicious one) code hash algorithm in another language.
-
-  *I don't trust another language*~~Diverse Double-Compiling. Works both when communicating the hash is not trusted, and when file handling is not trusted.
-  It is valid to not trust another language, yet trust another compiler, which is what DDC needs.
-  DDC needs not that we trust another compiler not to be hacked, but to not be hacked in the same way as the other.
-  So we can both not trust another language, yet apply DDC. Case in point: bootstrapping the Go compiler
-  needs a C compiler. C is bad and unsafe, we don't trust it (because we are the AIVD or something).
-
-  "Communication of hash to the user" concerns the output of the hash.
-  "File handling" refers to the input of the file comparison algorithm, hash or simple byte-by-byte comparison.
-
-  If my reasoning turns out to be nonsense, at least I can show the attack and the Diverse Double-Compiling
-  and show that the attack is really impractical, right?
+  Possible defences:
+  - Copy input file, then truncate them so they become the original file together.
+  - Hand-written SHA-256
+  - Print hash, but with a random hex letter char between each character
+    to make the hash look like SHA-512.
 ]
 
 = Results <results>
 
+== Attack Implementation
+
+#todo[
+  Describe attack inner workings, challenges, mode of operation.
+  Demonstrate attack.
+]
+
 #lorem(30)
 
+== Application of Diverse Double-Compiling
+
+#todo[
+  Show application of DDC and the output hashes, showing a detected attack.
+]
+
 #lorem(60)
+
+== Implementation of Defences with Only One Compiler
+
+#todo[
+  Demonstrate alternative verifier tool.
+]
 
 #lorem(90)
 
@@ -294,7 +384,18 @@ and thus demonstrating the significance of this class of attacks.
 
 Placed here close to the conclusion as clickbait.
 
-= Conclusion
+== Bootstrapping <bootstrapping>
+
+#todo[
+  Importance of bootstrappability (having a dependency tree instead of a graph, basically)
+  is important to avoid "trusting trust" attacks:
+  no binary blobs, or blobs outside the scope of a project, thus trusted;
+  Go compiler is bootstrappable: https://go.dev/blog/rebuild
+
+  $ "C" &-> "Go 1.4" \ &-> "A couple other Go versions" \ &-> "Go 1.21 (first reproducible version)" \ &-> "Go 1.22 (latest)" $
+]
+
+= Conclusion <conclusion>
 
 #lorem(30)
 
