@@ -233,18 +233,6 @@ and thus demonstrating the significance of this class of attacks.
 
 == Reproducible Builds
 
-#todo[
-  Introduce reproducible builds ("independently-verifiable path from source to binary code").
-
-  Introduce Diverse Double-Compiling, and why it requires (or, can work) with reproducible compiler builds.
-
-  Write about how trust is still needed even when using reproducible builds,
-  because of the cyclic dependency graph in most software which requires using binary blobs (that we trust)
-  ⇒ relevant to this thesis.
-
-  Bootstrapping is a solution, but it is not the scope of this thesis, see @bootstrapping.
-]
-
 Users of open-source software can be targetted by attacks
 that inject malicious code during the build process @taxonomy_supply_chains @reviewofosssupplychains.
 Those can become victims either by just using the compromised software packages—in Linux distributions, for example—or
@@ -263,13 +251,6 @@ by ensuring that compiling the source code yields the same results
 irrespective of the build environment.
 If we get a mismatch in results, either the source code is different—it's not the code we expect—or
 at least one of the dependencies is different—the environment is not the same.
-In the context of self-reproducing compiler attacks,
-if I want to compile the clean source code of
-a (reproducible) compiler and the outputs are matching,
-that means the $(sans("source"), sans("compiler"))$ pairs are identical.
-If both parties have the same attacked compiler, they cannot know
-just by reproducing it.
-
 In this work, I will abide by the reproducible build definition as
 formulated by Lamb & Zacchiroli @reproduciblebuilds:
 
@@ -285,7 +266,14 @@ formulated by Lamb & Zacchiroli @reproduciblebuilds:
 ] <def_reproducible_builds>
 
 Reproducible Builds do not solve the problem of trust in software builds completely
-when it comes to (self-hosting) compilers: to build a compiler, you need a previous version of itself.
+when it comes to (self-hosting) compilers:
+if I want to compile the clean source code of
+a (reproducible) compiler and the outputs are matching,
+that means the $(sans("source"), sans("compiler"))$ pairs are identical.
+If both parties have the same attacked compiler, they cannot know
+just by reproducing it.
+
+To build a compiler, you need a previous version of itself.
 We can expand this cycle by compiling compiler $sans(A)$ with an older compiler
 $sans(B)$ which is in turn compiled by an even older compiler $sans(C)$, until
 we reach version $frak(X)$,
@@ -304,22 +292,31 @@ by maintaining a second version of a compiler implemented in a different languag
 as is the case of Go with its alternative implementation `gccgo`.
 #footnote[https://gcc.gnu.org/onlinedocs/gccgo/]
 These programs, for which not just the executable is reproducible, but also
-the build tools involved in its production, are said to be bootstrappable @bootstrappableorg.
-#todo[This is not the scope of this thesis.]
+the build tools involved in its production, are said to be bootstrappable @bootstrappableorg @og_bootstrap.
+Bootstrappability is hard, because it requires developers to put in
+additional work to maintain it, and is outside the scope of this thesis.
 
 == Research Questions and The Scope of This Thesis
 
-#todo[Motivate questions]
-
-I pose the following research questions:
+In this work, I pose the following research questions:
 
 #box(inset: 1em)[
   #set enum(numbering: n => strong(smallcaps("RQ"+str(n))+":"))
-  + How to perform a self-reproducing compiler attack, despite a reproducible toolchain?
-  + How to protect from such an attack, in the context of reproducible builds?
+  + How to perform a self-reproducing compiler attack against a reproducible toolchain?
+  + How to protect from such an attack, harnessing reproducible builds?
 ]
 
-#todo[Outline of paper]
+To keep the scope of this work simple, yet relevant, I will consider
+these research questions under the assumption that the target programming language
+is the main language used in the development of the platform  on which it runs.
+Such platforms, or operating systems, include FreeBSD, OpenBSD, and Illumos, which are written
+primarily in C, and Gokrazy, a Linux-based operating system
+made for running only software written in Go #citationNeeded.
+I will also assume that there is a program $frak(R)$ written in the target language, that verifies the
+reproducibility of a compiler. This program can be as simple as a
+hash validation program, or be a complex program that downloads and verifies
+the source code and the dependencies for you, and then verifies the output with
+a known artifact.
 
 = Method <method>
 
@@ -327,7 +324,7 @@ I pose the following research questions:
 
 #todo[Describe `gorebuild` and why it's feasible to be attacked (verification tool written in the same language as the compiler).]
 
-== Diverse Double Compiling
+== Diverse Double-Compiling
 
 #todo[Describe set up of DDC experiment]
 
@@ -342,14 +339,14 @@ I pose the following research questions:
   Those three places might be bugged, but an attacker cannot make a general bug.
   Therefore, a party can make a private implementation of a verifier program
   (i.e. alternative to `gorebuild`) that can, for example,
-  do simple transformations to the input and output, and use a hand-made hash implementation.
-  This verifier program must be kept private, and maybe even altered from time to time,
+  make simple transformations to the input and output, and use a hand-made hash implementation.
+  This verifier program must be kept private, and maybe even updated from time to time,
   to prevent an attacker from (also) targeting it.
 
   Possible defences:
   - Copy input file, then truncate them so they become the original file together.
   - Hand-written SHA-256
-  - Print hash, but with a random hex letter char between each character
+  - Print hash, but with a random hex letter char before each character
     to make the hash look like SHA-512.
 ]
 
@@ -383,16 +380,22 @@ I pose the following research questions:
 = Related Work <related_work>
 
 Placed here close to the conclusion as clickbait.
+#todo[Related work relevant to Reproducible Builds.
+See: https://reproducible-builds.org/docs/publications/.
+Also https://dwheeler.com/trusting-trust/]
 
 == Bootstrapping <bootstrapping>
 
-#todo[
-  Importance of bootstrappability (having a dependency tree instead of a graph, basically)
-  is important to avoid "trusting trust" attacks:
-  no binary blobs, or blobs outside the scope of a project, thus trusted;
-  Go compiler is bootstrappable: https://go.dev/blog/rebuild
+#todo[Bootstrapping is the closest thing to a solution, and there
+are some things written about it. Most interesting
+and popular are probably the Guix blog articles about their full-source bootstrap:
 
-  $ "C" &-> "Go 1.4" \ &-> "A couple other Go versions" \ &-> "Go 1.21 (first reproducible version)" \ &-> "Go 1.22 (latest)" $
+- https://guix.gnu.org/en/blog/2023/the-full-source-bootstrap-building-from-source-all-the-way-down/
+- http://diyhpl.us/wiki/transcripts/breaking-bitcoin/2019/bitcoin-build-system/
+
+Builds and packages are pure functions in Guix, which allows for all this cool tech.
+Also mention Nix and the works of Eelco Dolstra, author of Nix.
+Nix helps enforce some kind of reproducibility, but not the bit-by-bit kind.
 ]
 
 = Conclusion <conclusion>
