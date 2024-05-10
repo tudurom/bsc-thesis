@@ -169,7 +169,7 @@ in the scope of this work, I will always use the general term "compiler".
   caption: [V8 JavaScript Engine Pipeline @v8bytecode],
 ) <v8_pipeline>
 
-#let ver(x) = $sans(#x)$
+#let ver(x) = raw(x)
 
 In his speech @trusting_trust, Thompson
 presents the idea of introducing malicious behaviour
@@ -186,13 +186,13 @@ anymore, as the compiler binary now implements the feature.
 One example of this behaviour would be support for
 multi-line string literals—a string literal that contains a
 string spanning over multiple lines, shown in @go_strings.
-Version #ver[1.0] of a fictional compiler may only support
+Version #ver("1.0") of a fictional compiler may only support
 strings written over a single line of code. I can
-then add support for multi-line strings in version #ver[2.0],
+then add support for multi-line strings in version #ver("2.0"),
 without using this feature in the implementation. Later,
-in a further version #ver[3.0], I can now make use of multi-line
+in a further version #ver("3.0"), I can now make use of multi-line
 strings in the compiler code itself, because the executable
-of version #ver[2.0] will be able to handle them.
+of version #ver("2.0") will be able to handle them.
 
 #figure(
   caption: [
@@ -407,6 +407,10 @@ Nix helps enforce some kind of reproducibility, but not the bit-by-bit kind.
 #pagebreak(weak: true)
 #heading(outlined: false, numbering: none)[References]
 
+#show bibliography: it => [
+  #show link: set text(fill: black)
+  #it
+]
 #bibliography(title: none, "works.bib")
 #pagebreak(weak: true)
 
