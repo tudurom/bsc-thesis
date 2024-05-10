@@ -416,12 +416,5 @@ Nix helps enforce some kind of reproducibility, but not the bit-by-bit kind.
 
 #heading(outlined: false, numbering: none)[Appendix]
 
-```c
-#include <stdio.h>
-
-int main() {
-  printf("Hello, world!\n");
-
-  return 0;
-}
-```
+*Trivia*: The monospaced font used in this thesis
+is Go Mono, made for the Go project.
