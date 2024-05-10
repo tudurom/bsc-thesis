@@ -290,13 +290,13 @@ hence the weaker trust. Special care can be taken when engineering a software sy
 to make sure that it is easily buildable without cyclic dependencies, such as
 by maintaining a second version of a compiler implemented in a different language,
 as is the case of Go with its alternative implementation `gccgo`.
-#footnote[https://gcc.gnu.org/onlinedocs/gccgo/]
+#footnote[https://gcc.gnu.org/onlinedocs/gccgo/ (Accessed on 09-05-2024.)]
 These programs, for which not just the executable is reproducible, but also
 the build tools involved in its production, are said to be bootstrappable @bootstrappableorg @og_bootstrap.
 Bootstrappability is hard, because it requires developers to put in
 additional work to maintain it, and is outside the scope of this thesis.
 
-== Research Questions and The Scope of This Thesis
+== Research Questions and The Scope of This Thesis <rqs_and_scope>
 
 In this work, I pose the following research questions:
 
@@ -309,9 +309,17 @@ In this work, I pose the following research questions:
 To keep the scope of this work simple, yet relevant, I will consider
 these research questions under the assumption that the target programming language
 is the main language used in the development of the platform  on which it runs.
-Such platforms, or operating systems, include FreeBSD, OpenBSD, and Illumos, which are written
-primarily in C, and Gokrazy, a Linux-based operating system
-made for running only software written in Go #citationNeeded.
+Such platforms, or operating systems, include FreeBSD @freebsd, OpenBSD @openbsd, and Illumos,
+#footnote[Source code repository on GitHub: https://github.com/illumos/illumos-gate. According to GitHub, the C source code makes up for 88.6% of source files. (Accessed on 09-05-2024.)]
+which are written
+primarily in C,
+and Talos Linux and Gokrazy, written primarily in Go.
+Gokrazy is a Linux-based operating system for enthusiasts, that runs only software written in Go @gokrazy.
+Talos Linux
+#footnote[Source code repository on GitHub: https://github.com/siderolabs/talos. The Go source code makes up for 92.0% of source files. (Accessed on 09-05-2024.)]
+is a production-grade Linux-based operating system that runs the minimal amount of software needed
+to run Kubernetes @kubernetes, a container orchestration engine also written in Go.
+
 I will also assume that there is a program $frak(R)$ written in the target language, that verifies the
 reproducibility of a compiler. This program can be as simple as a
 hash validation program, or be a complex program that downloads and verifies
