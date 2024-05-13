@@ -3,6 +3,13 @@
 #set text(font: "Charis SIL")
 #show math.equation: set text(font: "Euler Math")
 #show raw: set text(font: "Go Mono")
+#show link: it => {
+  if type(it.dest) == str {
+    text(fill: blue, it)
+  } else {
+    it
+  }
+}
 
 #set text(size: 11pt, lang: "en", region: "gb")
 #let numberFn(..numArgs) = {
