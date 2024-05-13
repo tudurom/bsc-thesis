@@ -25,7 +25,7 @@
   on implicit trust present at multiple levels:
   trusting that (dependent) code is not malicious,
   and trusting that the code matches the trusted binaries.
-  The “Trusting Trust” attack, popularised by Ken Thompson, showed that we cannot fully trust code that
+  The 'Trusting Trust' attack, popularised by Ken Thompson, showed that we cannot fully trust code that
   is not written and compiled by ourselves, because of the risk of interference coming
   from self-replicating compiler attacks.
   In this work, I take the Go compiler as an example and show that a self-replicating compiler attack is possible
@@ -94,9 +94,9 @@ This way, even when compiling the legitimate, unaltered version of the compiler,
 the malicious code will be proliferated in the resulting executable;
 because of the non-triviality of comparing source code to the executable,
 the attack would go unnoticed.
-This attack is commonly referred to as the "trusting trust"
+This attack is commonly referred to as the 'trusting trust'
 attack, based on the title of Thompson's lecture:
-"Reflections on Trusting Trust."
+'Reflections on Trusting Trust'.
 
 Free and open-source software constitutes an important part of the
 current software supply chain,
@@ -129,25 +129,25 @@ and be at peace that no self-replicating compiler attack was done on us?
 What changed since Thompson delivered his speech in 1984, that protects us from this threat?
 
 In the following subsections of this introduction,
-I will further describe the background and the mode of operation
-of the "trusting trust" attack and of reproducible builds in more detail,
+I further describe the background and the mode of operation
+of the 'trusting trust' attack and of reproducible builds in more detail,
 complete with the research questions and the scope of this thesis.
 @method describes a self-reproducing attack inserted in the Go compiler,
 the reasons for choosing this toolchain for the scope of this paper,
-and measures taken to hide the attack. I will also describe
+and measures taken to hide the attack. I also describe
 a method of trivially discovering the attack with the help
 of a second compiler that is not affected by the attack,
 and how this second compiler can be easily obtained thanks to
-Go's bootstrapping process. On top of that, I will propose
+Go's bootstrapping process. On top of that, I propose
 measures that can be taken by a concerned victim in the absence
 of a second compiler, in order to stay protected.
 @results shows the mode of operation of the attack proof-of-concept
 that I developed, the results of the attack discovery method involving a second
 compiler, and the outcomes to the defences proposed in @method.
-In @related_work, I will have a look at other works written on related subjects,
+In @related_work, I have a look at other works written on related subjects,
 followed by a conclusion of this thesis in @conclusion.
 
-== The "Trusting Trust" Attack
+== The 'Trusting Trust' Attack
 
 There are multiple layers between the source code of a program
 we want to execute, as written by the authors, and the actual
@@ -162,7 +162,7 @@ Depending on the source and target languages, the prefered name for such a progr
 might be different, as is the case for assemblers—transforming assembly language
 to machine code—or JavaScript module bundlers, such as Webpack, which
 optimise JavaScript source code for distribution over the Web;
-in the scope of this work, I will always use the general term "compiler".
+in the scope of this work, I always use the general term 'compiler'.
 
 #figure(
   image("v8_pipeline.png", width: 80%),
@@ -196,7 +196,7 @@ of version #ver("2.0") will be able to handle them.
 
 #figure(
   caption: [
-    The two kinds of string literals in Go: interpreted ("normal") and raw ("multi-line")
+    The two kinds of string literals in Go: interpreted ('normal') and raw ('multi-line')
     @gospec
   ]
 )[
@@ -222,9 +222,9 @@ no trace of it is present in the source code.
 The aforementioned attack was previously mentioned in
 an evaluation of the security of Multics @airforce—the predecessor of #unix—performed by the United States Air Force in 1974, 10 years prior to Thompson's lecture.
 The authors of the report describe the possibility of developing a self-perpetuating backdoor
-#footnote[The authors use the term “trap door”.]
+#footnote[The authors use the term 'trap door'.]
 implanted in the PL/I compiler used to compile the Multics kernel.
-#footnote[The authors use the term "supervisor".]
+#footnote[The authors use the term 'supervisor'.]
 In a follow-up article written by the same authors #cite(<airforce_followup>, supplement: [p.~130]),
 Karger and Schell relate that an instance of this kind of backdoor that they created, described in the original report, was later found in a computer inside the headquarters of the US Department of Defence, despite the fact that the attack was implanted at another institution, outside the US Air Force,
 and thus demonstrating the significance of this class of attacks.
@@ -251,7 +251,7 @@ by ensuring that compiling the source code yields the same results
 irrespective of the build environment.
 If we get a mismatch in results, either the source code is different—it's not the code we expect—or
 at least one of the dependencies is different—the environment is not the same.
-In this work, I will abide by the reproducible build definition as
+In this work, I abide by the reproducible build definition as
 formulated by Lamb & Zacchiroli @reproduciblebuilds:
 
 #figure(kind: "definition", supplement: [Definition])[
@@ -306,7 +306,7 @@ In this work, I pose the following research questions:
   + How to protect from such an attack, harnessing reproducible builds?
 ]
 
-To keep the scope of this work simple, yet relevant, I will consider
+To keep the scope of this work simple, yet relevant, I consider
 these research questions under the assumption that the target programming language
 is the main language used in the development of the platform  on which it runs.
 Such platforms, or operating systems, include FreeBSD @freebsd, OpenBSD @openbsd, and Illumos,
@@ -320,7 +320,7 @@ Talos Linux
 is a production-grade Linux-based operating system that runs the minimal amount of software needed
 to run Kubernetes @kubernetes, a container orchestration engine also written in Go.
 
-I will also assume that there is a program $frak(R)$ written in the target language, that verifies the
+I also assume that there is a program $frak(R)$ written in the target language, that verifies the
 reproducibility of a compiler. This program can be as simple as a
 hash validation program, or be a complex program that downloads and verifies
 the source code and the dependencies for you, and then verifies the output with

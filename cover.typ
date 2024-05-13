@@ -7,7 +7,7 @@
   #v(1.5cm)
   #line(length: 100%)
   #v(0.4cm)
-  #text(1.75em)[*Protecting Against the "Trusting Trust" Attack in The Context of Reproducible Builds*]
+  #text(1.75em)[*Protecting Against the 'Trusting Trust' Attack in The Context of Reproducible Builds*]
   #v(0.4cm)
   #line(length: 100%)
   #v(1.5cm)
