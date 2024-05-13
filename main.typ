@@ -335,9 +335,113 @@ a known artifact.
 
 = Method <method>
 
+To answer the research questions, I picked the reference Go compiler, `gc` @gogc to be the target of my attack.
+The reasons for my choice are fivefold:
+
+- `gc` is written completely in Go, including the back-end
+  and the assembler used to generate binaries.
+- Go is reproducible @gorebuild by default:
+  Assuming that the compilers in the bootstrap chain are legitimate, only the source code of `gc` affects the
+  resulting binaries—the author of the referenced work names this 'perfect reproducibility'. The platform on which the build runs
+  does not affect the binaries: they will be bit-by-bit identical.
+- `gc` has a clear bootstrapping process:
+  for each version of `gc`, there is a well-defined
+  older version of the compiler needed to compile it;
+  the first version of `gc` written in Go can then be
+  compiled with the last version of `gc` written in C.
+  Even though only operating systems built primarily
+  in the programming language of choice form the scope of this thesis,
+  having an implementation of the compiler in a different language
+  at the end of the bootstrapping chain ensures a clear origin
+  for the subsequent compiler binaries in my experiments.
+- All versions of `gc` can compile Go code for all
+  the supported operating systems and CPU architectures
+  without installing any additional software. This is very useful for testing.
+- Finally, `gc` has an oficially-endorsed tool to verify
+  its reproducibility, named `gorebuild`, itself written in Go.
+  Coincidentially, this will serve as the verification tool
+  $frak(R)$, as defined in @rqs_and_scope.
+
+For the experiments outlined in this work, I used version
+`1.22.3` of `gc`, with source and binaries available at
+https://go.dev/dl/.
+`gorebuild` is part of the 'Continuous build and release infrastructure'
+repository (also called `x/build`), its code residing in the `cmd/gorebuild` directory.
+The exact version of `gorebuild` used in this thesis is available at
+https://go.googlesource.com/build/+/c639adb8fb6ac6aa2dfbe669bd171d84ddfc6ae9/cmd/gorebuild/.
+
 == The Attack
 
-#todo[Describe `gorebuild` and why it's feasible to be attacked (verification tool written in the same language as the compiler).]
+The scope of the attack is to make the compiler
+intentionally corrupt the reproducibility-verifier
+program $frak(R)$: to lie to the user that the
+generated executables of the compiler—in turn
+created by a compiler—match those advertised by an authority.
+
+In the context of Go and `gorebuild`, this entails
+modifying the Go compiler to insert special code
+when detecting that the project being built is `gorebuild`.
+Fortunately for us, from the 'Go Reproducible Build Report'
+#footnote[https://go.dev/rebuild (Accessed 12-05-2024.)]
+page on Go's website, compiling `gorebuild` from source
+is the endorsed way of running this program, making it
+a good target for a 'trusting trust' attack.
+The Go website does not provide any binary version of
+`gorebuild` at the time of writing this thesis.
+
+The build verification process undertaken
+by `gorebuild` is more sophisticated than a mere
+file comparison—be it byte-by-byte or compare-by-hash.
+Instead, `gorebuild` takes a compiler variant specifier,
+compiles the bootstrap chain for the host running the verification, and then compiles the specified compiler
+using the last compiler in the bootstrap chain.
+A compiler variant specifier takes the from of a triplet $(O_t, A_t, V)$, with targeted operating system $O_t$,
+targeted CPU architecture $A_t$, and Go version compiler
+$V$. $V$ must be at least `1.21.0` for `gorebuild` to run, as that is the first reproducible version of the
+Go compiler.
+
+To better understand the mode of operation, take this example: I have the following two version specifiers:
+#footnote[
+  For each version number mentioned with only two components—e.g. 1.17—consider all associated version
+  numbers with three components.
+]
+$
+  S_"host" &= (mono("windows"), mono("amd64"), V),& forall V in {1.4, 1.17, 1.20}\
+  S_"target" &= (mono("linux"), mono("arm64"), 1.22.3)&
+$
+My host is a laptop running Windows on an x86-64 CPU.
+I want to build and verify `gc` version `1.22.3`
+targetting Linux running
+on AArch64.
+
+`gorebuild` proceeds to download the source code
+for `gc` `1.4`, which is written in C. Then,
+it downloads the source of, and compiles, `gc` `1.17`, written in Go, which is then used to compile `gc` `1.20`. These three compilers form the bootstrap chain,
+and target our host $S_"host"$.
+The last compiler of the chain, `gc` `1.20`,
+then compiles `gc` `1.22.3` targetting $S_"target"$. The result of this build is then compared with
+the oficially-distributed file from https://go.dev/dl/.
+Usually, this is either a `.tar.gz` archive,
+or `.msi` and `.pkg` installer files for Windows and macOS respectively.
+
+The main purpose of my attack is to generate a forged
+`gorebuild` binary that (a) compiles Go version `1.22.3`
+using an attacked compiler, in turn proliferating the attack, and (b)
+lies to the user that the resulting
+Go toolchain matches the official one, available on https://go.dev/dl. Being compiled by the forged compiler,
+the result is therefore also forged. A victim
+can use `gorebuild` to bootstrap `gc` on their system,
+without knowing that the verification tool is targeted
+by the compiler on their system. They obtain
+another attacked compiler that they will trust,
+thinking that it's the result of the bootstrapping process.
+
+// To extend its use case, my attack also targets
+// the `crypto.Sha256` function of the Go standard library,
+// to return the SHA256 hash of the legitimate compiler
+// whenever the user tries to compute the hash of a file
+// identical to the attacked compiler.
+
 
 == Diverse Double-Compiling
 
