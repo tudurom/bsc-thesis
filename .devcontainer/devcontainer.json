@@ -23,8 +23,9 @@
             ]
         }
     },
+    "onCreateCommand": "mkdir -p /home/vscode/.local/share && ln -sf ${localWorkspaceFolder}/OTF /home/vscode/.local/share/fonts",
     "mounts": [
-        "source=${localWorkspaceFolder}/OTF,target=/home/vscode/.local/share/fonts,type=bind,consistency=cached"
+        //"source=${localWorkspaceFolder}/OTF,target=/home/vscode/.local/share/fonts,type=bind,consistency=cached"
     ],
     // "containerEnv": {
     // 	"TYPST_FONT_PATHS": "/workspaces/thesis/OTF"
