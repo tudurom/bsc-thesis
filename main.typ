@@ -404,7 +404,33 @@ thinking that it's the result of the bootstrapping process.
 
 == Diverse Double-Compiling
 
-#todo[Describe set up of DDC experiment]
+Given that the Go compiler is reproducible,
+by using a second, trusted compiler, we can
+detect whether a given Go compiler is affected by
+a 'trusting trust' attack. I use a technique
+introduced by Wheeler @ddc_paper, called 'Diverse Double-Compiling', or DDC.
+
+To do this, I use the attacked `gc` binary $A$,
+the source code $s_A$ of the real Go compiler that $A$
+is based upon---source code that an attacker would claim
+to be legitimate---and the binary of the second, trusted
+compiler binary $T$.
+To apply DDC, I first check that $A$ can regenerate itself.
+That is, when given the unaltered, legitimate `gc` source code,
+$A$ will compromise it and yield an identical copy of itself. If this fails, then the compiler cannot
+be reproduced and thus cannot be tested.
+Next, I use $T$ to compile $s_A$, with $A_T$ as a result.
+Finally, $A_T$ is used to compile its claimed source code
+$s_A$, yielding $A_A_T$. If $A$ and $A_A_T$ are the same,
+then there is no self-reproducing compiler attack happening.
+
+In my experiment, I will take $T$ to be
+a variant of `gc 1.21`, given that it is reproducible,
+yet different from the compiler I want to base my attack on. To compare the compilation results,
+I use the SHA256 hash, generated using
+the `sha256sum` utility on an Ubuntu 22.04.03 system.
+Hence, if the hashes of $A$ and $A_A_T$ are equal,
+I consider $A$ and $A_A_T$ to be equal.
 
 == Defending with only one compiler available
 
@@ -414,7 +440,7 @@ thinking that it's the result of the bootstrapping process.
   - Calculation of hash (hash function detects hash of bugged compiler, replaces it with the legitimate one)
   - Output of hash (print operations are bugged)
 
-  Those three places might be bugged, but an attacker cannot make a general bug.
+  Those three places might be bugged, but an attacker cannot make a general bug (cannot test for function equivalence).
   Therefore, a party can make a private implementation of a verifier program
   (i.e. alternative to `gorebuild`) that can, for example,
   make simple transformations to the input and output, and use a hand-made hash implementation.
@@ -422,7 +448,7 @@ thinking that it's the result of the bootstrapping process.
   to prevent an attacker from (also) targeting it.
 
   Possible defences:
-  - Copy input file, then truncate them so they become the original file together.
+  - Copy input file, then split them so they become the original file together.
   - Hand-written SHA-256
   - Print hash, but with a random hex letter char before each character
     to make the hash look like SHA-512.
@@ -437,15 +463,11 @@ thinking that it's the result of the bootstrapping process.
   Demonstrate attack.
 ]
 
-#lorem(30)
-
 == Application of Diverse Double-Compiling
 
 #todo[
   Show application of DDC and the output hashes, showing a detected attack.
 ]
-
-#lorem(60)
 
 == Implementation of Defences with Only One Compiler
 
@@ -453,11 +475,8 @@ thinking that it's the result of the bootstrapping process.
   Demonstrate alternative verifier tool.
 ]
 
-#lorem(90)
-
 = Related Work <related_work>
 
-Placed here close to the conclusion as clickbait.
 #todo[Related work relevant to Reproducible Builds.
 See: https://reproducible-builds.org/docs/publications/.
 Also https://dwheeler.com/trusting-trust/]
@@ -478,9 +497,7 @@ Nix helps enforce some kind of reproducibility, but not the bit-by-bit kind.
 
 = Conclusion <conclusion>
 
-#lorem(30)
-
-#lorem(69)
+#todo[Conclusion]
 
 #pagebreak(weak: true)
 #heading(outlined: false, numbering: none)[References]
@@ -494,5 +511,4 @@ Nix helps enforce some kind of reproducibility, but not the bit-by-bit kind.
 
 #heading(outlined: false, numbering: none)[Appendix]
 
-*Trivia*: The monospaced font used in this thesis
-is Go Mono, made for the Go project.
+~
