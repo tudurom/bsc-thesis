@@ -65,7 +65,8 @@
   }
 }
 
-#let todo(body) = [
+#let todoEnable = true
+#let todo(body) = if todoEnable [
   #set text(fill: maroon)
   #smallcaps([*To Do* ])
   #body
