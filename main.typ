@@ -114,11 +114,11 @@ in turn with their own dependencies,
 complex dependency chains are formed upon weak trust relations,
 given that free and open-source software offers
 no warranties, and no contracts and arrangements are needed
-to integrate them into other works #citationNeeded.
+to integrate them into other works.
 Yet, one of the great advantages of open-source software is that,
 in theory, anybody can verify the quality and security of the source code,
 which is public by definition. In practice, most people still
-consume this software by downloading binary executables directly #citationNeeded.
+consume this software by downloading binary executables directly.
 These binaries cannot be verified to be the direct product of the source code that is advertised to be used in their compilation, and as a result,
 the distributor of the binaries is fully trusted to not interfere with the executables.
 As a solution to this problem, a group of free software projects
