@@ -1,76 +1,34 @@
-#import "@preview/outrageous:0.1.0"
-// #set text(font: "Charter")
-#set text(font: "Charis SIL")
-#show math.equation: set text(font: "Euler Math")
-#show raw: set text(font: "Go Mono")
-#show link: it => {
-  if type(it.dest) == str {
-    text(fill: blue, it)
-  } else {
-    it
-  }
-}
+#import "template.typ": *
 
-#set text(size: 11pt, lang: "en", region: "gb")
-#let numberFn(..numArgs) = {
-  numbering("1.1", ..numArgs)
-  h(0.75em)
-}
-#set heading(numbering: numberFn)
-#show par: set block(spacing: 0.65em, width: 15cm, height: 22cm)
-#show heading: set block(above: 1.4em, below: 1em)
-#set page(paper: "a4", margin: (x: 4cm, top: 2.5cm, bottom: 2.5cm + 0.25in))
-
-#include "cover.typ"
-
-#set page(numbering: "1")
-#pad(x: 1em)[
-  #set par(justify: true)
-  #align(center, heading(outlined: false, level: 3, numbering: none, bookmarked: true)[#smallcaps[Abstract]])
-
-  The software supply chain as we know it today is based
-  on implicit trust present at multiple levels:
-  trusting that (dependent) code is not malicious,
-  and trusting that the code matches the trusted binaries.
-  The 'Trusting Trust' attack, popularised by Ken Thompson, showed that we cannot fully trust code that
-  is not written and compiled by ourselves, because of the risk of interference coming
-  from self-replicating compiler attacks.
-  In this work, I take the Go compiler as an example and show that a self-replicating compiler attack is possible
-  even when using a fully deterministic and reproducible compiler,
-  for which we can independently verify that the compiler binary matches its source code.
-  I also show that the attack is trivial to detect using a second compiler,
-  and that the attack can still be easy to detect when the attacked
-  compiler is the only one available. 
-  // I also show that this attack is highly impractical—despite its possibility—and successfully detect a hidden self-reproducing compiler attack.
-]
-#pagebreak()
-
-#show outline.entry: outrageous.show-entry.with(
-  ..outrageous.presets.typst,
-  font-weight: ("bold", auto),
-  fill: (none, repeat[~.],),
-  vspace: (1.5em, none)
+#let final = false
+#show: tudorThesis.with(
+  title: [Protecting Against the 'Trusting Trust' Attack in The Context of Reproducible Builds],
+  kind: [Bachelor's Thesis #text(fill: red)[*Draft*]],
+  submitted: final,
+  abstract: [
+    The software supply chain as we know it today is based
+    on implicit trust present at multiple levels:
+    trusting that (dependent) code is not malicious,
+    and trusting that the code matches the trusted binaries.
+    The 'Trusting Trust' attack, popularised by Ken Thompson, showed that we cannot fully trust code that
+    is not written and compiled by ourselves, because of the risk of interference coming
+    from self-replicating compiler attacks.
+    In this work, I take the Go compiler as an example and show that a self-replicating compiler attack is possible
+    even when using a fully deterministic and reproducible compiler,
+    for which we can independently verify that the compiler binary matches its source code.
+    I also show that the attack is trivial to detect using a second compiler,
+    and that the attack can still be easy to detect when the attacked
+    compiler is the only one available.
+  ]
 )
-#outline(indent: auto)
-#pagebreak(weak: true)
 
-#set par(justify: true, leading: 0.65em, first-line-indent: 10pt)
-
-#show ref: it => {
-  let el = it.element
-  if el != none and el.func() == heading {
-    link(el.location())[Section #numbering("1.1", ..counter(heading).at(el.location()))]
-  } else {
-    it
-  }
-}
-
-#let todoEnable = true
-#let todo(body) = if todoEnable [
+#let todoEnabled = true
+#let todo(body) = if todoEnabled [
   #set text(fill: maroon)
-  #smallcaps([*To Do* ])
+  #smallcaps[*To Do*]
   #body
 ]
+
 #let unix = smallcaps[Unix]
 #let citationNeeded = link("https://www.youtube.com/watch?v=dQw4w9WgXcQ", text(fill: red, smallcaps[[citation needed]]))
 #let tt = [_trusting trust_]
