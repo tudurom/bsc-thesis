@@ -434,6 +434,67 @@ I consider $A$ and $A_A_T$ to be equal.
 
 == Defending with only one compiler available
 
+In theory, there doesn't seem to be any method to check
+whether a suspected compiler has been the subject
+of a 'trusting trust' attack in the absence of a second,
+trusted compiler. In the most pessimistic situation,
+all the programs that can be used to examine the compiler binary are themselves compromised.
+How feasible this situation is, is an open question.
+
+#set terms(hanging-indent: 0pt)
+
+An attacked compiler can affect the result of
+$frak(R)$ by modifying routines at the following three levels:
+/ File input: Before the file is compared, the input
+  data is modified to make it match an unnattacked compiler,
+  should the input be attacked. For example,
+  the file input routine returns the input data to the
+  caller only once it's sure that the data does not
+  match the attacked compiler.
+/ File comparison: The comparison routine first
+  checks whether the input matches the attacked compiler,
+  and then reports a result suitable for the non-attacked compiler. One way this could happen is by
+  replacing a hash with another.
+/ Result output: The comparison result is swapped
+  at output time
+  to match that of a non-attacked compiler.
+  For example, the comparison is done by comparing hashes.
+  The hash of the attacked compiler is replaced
+  in the output buffer with that of the legitimate compiler, and then printed on the screen.
+
+With only one compiler available, I base my defences upon
+the fact that function equivalence is undecidable,
+a consequence of Rice's Theorem @rices_theorem.
+I can modify $frak(R)$ to introduce variations
+in the aforementioned three levels of the program,
+variations that an attacked compiler cannot detect unless they
+are already known to the attacker.
+It is for this reason that, when only the suspected compiler
+is available, the variations introduced in $frak(R)$
+need to be kept secret. Otherwise, the attack
+can be updated to target them.
+
+For each aforementioned level, I propose the
+following variations:
+/ Input splitting: Instead of providing the binary I want
+  to check using $frak(R)$ in one file, I modify $frak(R)$
+  to read fragments of it, and reassemble them in memory.
+/ Reimplement the comparison algorithm: Rewrite the file
+  comparison routine by hand, instead of using one
+  from the standard library. An attack cannot
+  deduct the semantics of this implementation, i.e.
+  that the code represents a file comparison function.
+  In my implementation, I chose the file comparison
+  function to be SHA256.
+/ Scramble the comparison output: SHA256 hashes are
+  usually printed in hexadecimal notation.
+  For each hex digit, append another random hex digit.
+  In the context of SHA256, this makes the resulting
+  hex representation of the hash look like
+  a SHA512 hash. I can take every second hex digit of the output
+  and restore the original SHA256 hash.
+
+/*
 #todo[
   Describe lack of confidence in hashes, and the three points in which they can go wrong:
   - Input of hash (file operations are bugged)
@@ -453,13 +514,14 @@ I consider $A$ and $A_A_T$ to be equal.
   - Print hash, but with a random hex letter char before each character
     to make the hash look like SHA-512.
 ]
+*/
 
 = Results <results>
 
 == Attack Implementation
 
 #todo[
-  Describe attack inner workings, challenges, mode of operation.
+  Describe attack implementation inner workings, challenges, mode of operation.
   Demonstrate attack.
 ]
 
@@ -509,6 +571,4 @@ Nix helps enforce some kind of reproducibility, but not the bit-by-bit kind.
 #bibliography(title: none, "works.bib")
 #pagebreak(weak: true)
 
-#heading(outlined: false, numbering: none)[Appendix]
-
-~
+//#heading(outlined: false, numbering: none)[Appendix]
