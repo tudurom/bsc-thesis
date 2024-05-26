@@ -69,6 +69,14 @@ numpages = {3}
   year={2020},
   month={Jun}} 
 
+@misc{guixfullsource,
+  title={The Full-Source Bootstrap: Building from source all the way down},
+  url={https://guix.gnu.org/en/blog/2023/the-full-source-bootstrap-building-from-source-all-the-way-down/},
+  journal={Blog — GNU Guix},
+  author={Nieuwenhuizen, J. and Courtès, L.},
+  year={2023},
+  month={Apr}}
+
 @misc{v8bytecode,
   title={Understanding V8’s Bytecode},
   url={https://medium.com/dailyjs/understanding-v8s-bytecode-317d46c94775},
@@ -130,6 +138,13 @@ series = {SIGPLAN '80}
   year=2024,
   month=Feb}
 
+@other{nih,
+  title={Running the “Reflections on Trusting Trust” Compiler},
+  author={Russ Cox},
+  url={https://research.swtch.com/nih},
+  year=2023,
+  month=Oct}
+
 @webpage{gokrazy,
   title={Gokrazy},
   author={{The Gokrazy authors}},
@@ -174,7 +189,8 @@ publisher="Springer International Publishing",
 address="Cham",
 pages="23--43",
 abstract="A software supply chain attack is characterized by the injection of malicious code into a software package in order to compromise dependent systems further down the chain. Recent years saw a number of supply chain attacks that leverage the increasing use of open source during software development, which is facilitated by dependency managers that automatically resolve, download and install hundreds of open source packages throughout the software life cycle. Even though many approaches for detection and discovery of vulnerable packages exist, no prior work has focused on malicious packages. This paper presents a dataset as well as analysis of 174 malicious software packages that were used in real-world attacks on open source software supply chains and which were distributed via the popular package repositories npm, PyPI, and RubyGems. Those packages, dating from November 2015 to November 2019, were manually collected and analyzed. This work is meant to facilitate the future development of preventive and detective safeguards by open source and research communities.",
-isbn="978-3-030-52683-2"
+isbn="978-3-030-52683-2",
+doi={10.1007/978-3-030-52683-2_2}
 }
 
 % Reproducible Builds: The Paper
@@ -236,7 +252,7 @@ volume = {11},
 number = {4},
 pages = {321-336},
 keywords = {Incremental development, maintenance, motivation, open source},
-doi = {https://doi.org/10.1046/j.1365-2575.2001.00113.x},
+doi = {10.1046/j.1365-2575.2001.00113.x},
 url = {https://onlinelibrary.wiley.com/doi/abs/10.1046/j.1365-2575.2001.00113.x},
 eprint = {https://onlinelibrary.wiley.com/doi/pdf/10.1046/j.1365-2575.2001.00113.x},
 abstract = {Abstract. Software development in the FreeBSD project is incremental in the sense that a stream of contributions, including bugfixes and minor and major new features, go into a single branch in the repository, the development branch (or ‘trunk’), and are required to preserve the software in a working state. This creates a succession of development releases, akin to the practice of frequent releasing argued by Eric S. Raymond in his essay ‘The Cathedral and the Bazaar’ to be the key to the success of Linux and other open source projects. The positive and negative impact of this approach is discussed based on a survey involving 72 project participants. On the positive side, the data indicate that it creates a highly motivating ‘see bug, fix bug, see bug fixed in new release’ life cycle, and helps integrate bugfixing with new development. On the negative side, the data indicates that the highly incremental model does not support the development of complex new features.},
@@ -255,7 +271,7 @@ year = {2001}
 
 @article{rices_theorem,
  ISSN = {00029947},
- URL = {https://doi-org.vu-nl.idm.oclc.org/10.2307/1990888},
+ doi = {10.2307/1990888},
  author = {H. G. Rice},
  journal = {Transactions of the American Mathematical Society},
  number = {2},
@@ -265,4 +281,100 @@ year = {2001}
  urldate = {2024-05-23},
  volume = {74},
  year = {1953}
+}
+
+@InProceedings{guix_hpc,
+author="Court{\`e}s, Ludovic
+and Wurmus, Ricardo",
+editor="Hunold, Sascha
+and Costan, Alexandru
+and Gim{\'e}nez, Domingo
+and Iosup, Alexandru
+and Ricci, Laura
+and G{\'o}mez Requena, Mar{\'i}a Engracia
+and Scarano, Vittorio
+and Varbanescu, Ana Lucia
+and Scott, Stephen L.
+and Lankes, Stefan
+and Weidendorfer, Josef
+and Alexander, Michael",
+title="Reproducible and User-Controlled Software Environments in HPC with Guix",
+booktitle="Euro-Par 2015: Parallel Processing Workshops",
+year="2015",
+publisher="Springer International Publishing",
+address="Cham",
+pages="579--591",
+abstract="Support teams of high-performance computing (HPC) systems often find themselves between a rock and a hard place: on one hand, they understandably administrate these large systems in a conservative way, but on the other hand, they try to satisfy their users by deploying up-to-date tool chains as well as libraries and scientific software. HPC system users often have no guarantee that they will be able to reproduce results at a later point in time, even on the same system---software may have been upgraded, removed, or recompiled under their feet, and they have little hope of being able to reproduce the same software environment elsewhere. We present GNU Guix and the functional package management paradigm and show how it can improve reproducibility and sharing among researchers with representative use cases.",
+isbn="978-3-319-27308-2",
+doi={10.1007/978-3-319-27308-2_47}
+}
+
+@inproceedings{nix,
+  author       = {Eelco Dolstra and
+                  Merijn de Jonge and
+                  Eelco Visser},
+  editor       = {Lee Damon},
+  title        = {Nix: {A} Safe and Policy-Free System for Software Deployment},
+  booktitle    = {Proceedings of the 18th Conference on Systems Administration {(LISA}
+                  2004), Atlanta, USA, November 14-19, 2004},
+  pages        = {79--92},
+  publisher    = {{USENIX}},
+  year         = {2004},
+  url          = {http://www.usenix.org/publications/library/proceedings/lisa04/tech/dolstra.html},
+  timestamp    = {Tue, 02 Feb 2021 08:06:11 +0100},
+  biburl       = {https://dblp.org/rec/conf/lisa/DolstraJV04.bib},
+  bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
+@inproceedings{nixos,
+  author       = {Eelco Dolstra and
+                  Andres L{\"{o}}h},
+  editor       = {James Hook and
+                  Peter Thiemann},
+  title        = {NixOS: a purely functional Linux distribution},
+  booktitle    = {Proceeding of the 13th {ACM} {SIGPLAN} international conference on
+                  Functional programming, {ICFP} 2008, Victoria, BC, Canada, September
+                  20-28, 2008},
+  pages        = {367--378},
+  publisher    = {{ACM}},
+  year         = {2008},
+  url          = {https://doi.org/10.1145/1411204.1411255},
+  doi          = {10.1145/1411204.1411255},
+  timestamp    = {Fri, 25 Jun 2021 14:48:54 +0200},
+  biburl       = {https://dblp.org/rec/conf/icfp/DolstraL08.bib},
+  bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
+
+@inproceedings{observables,
+author = {Ohm, Marc and Sykosch, Arnold and Meier, Michael},
+title = {Towards detection of software supply chain attacks by forensic artifacts},
+year = {2020},
+isbn = {9781450388337},
+publisher = {Association for Computing Machinery},
+address = {New York, NY, USA},
+url = {https://doi.org/10.1145/3407023.3409183},
+doi = {10.1145/3407023.3409183},
+abstract = {Third-party dependencies may introduce security risks to the software supply chain and hence yield harm to their dependent software. There are many known cases of malicious open source packages posing risks to developers and end users. However, while efforts are made to detect vulnerable open source packages, malicious packages are not yet considered explicitly. In order to tackle this problem we perform an exploratory case study on previously occurred attacks on the software supply chain with respect to observable artifacts created. Based on gained insights, we propose Buildwatch, a framework for dynamic analysis of software and its third-party dependencies. We noticed that malicious packages introduce a significant amount of new artifacts during installation when compared to benign versions of the same package. The paper presents a first analysis of observable artifacts of malicious packages as well as a possible mitigation strategy that might lead to more insight in long term.},
+booktitle = {Proceedings of the 15th International Conference on Availability, Reliability and Security},
+articleno = {65},
+numpages = {6},
+keywords = {DevSecOps, application security, malware, supply chain attack},
+location = {Virtual Event, Ireland},
+series = {ARES '20}
+}
+
+@article{deboostrapping_without_archeology,
+  author       = {Nathana{\"{e}}lle Courant and
+                  Julien Lepiller and
+                  Gabriel Scherer},
+  title        = {Debootstrapping without Archeology - Stacked Implementations in Camlboot},
+  journal      = {Art Sci. Eng. Program.},
+  volume       = {6},
+  number       = {3},
+  pages        = {13},
+  year         = {2022},
+  url          = {https://doi.org/10.22152/programming-journal.org/2022/6/13},
+  doi          = {10.22152/PROGRAMMING-JOURNAL.ORG/2022/6/13},
+  timestamp    = {Thu, 31 Mar 2022 17:13:20 +0200},
+  biburl       = {https://dblp.org/rec/journals/programming/CourantLS22.bib},
+  bibsource    = {dblp computer science bibliography, https://dblp.org}
 }

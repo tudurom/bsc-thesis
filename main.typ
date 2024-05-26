@@ -197,7 +197,7 @@ and thus demonstrating the significance of this class of attacks.
 
 #todo[Describe XCodeGhost and other similar attacks as contemporary instances.]
 
-== Reproducible Builds
+== Reproducible Builds <section_reproducible_builds>
 
 Users of open-source software can be targetted by attacks
 that inject malicious code during the build process @taxonomy_supply_chains @reviewofosssupplychains.
@@ -436,7 +436,7 @@ I consider $A$ and $A_A_T$ to be equal.
 
 == Defending with only one compiler available
 
-In theory, there doesn't seem to be any method to check
+In theory, there is no method to check
 whether a suspected compiler has been the subject
 of a 'trusting trust' attack in the absence of a second,
 trusted compiler. In the most pessimistic situation,
@@ -541,23 +541,68 @@ following variations:
 
 = Related Work <related_work>
 
-#todo[Related work relevant to Reproducible Builds.
-See: https://reproducible-builds.org/docs/publications/.
-Also https://dwheeler.com/trusting-trust/]
+Cox @nih explains in a blog post the inner
+workings of the original 'trusting trust' attack
+of Thompson. This attack targets the C compiler
+and the `login` program in Research Unix Sixth Edition.
+
+Courtès and Wurmus @guix_hpc propose GNU Guix
+and the functional package management paradigm
+as a solution to the reproducibility problem in
+the High Performance Computing space.
+As scientific results are often obtained
+with the help of software, the lack of reproducibility
+in software can also impact the reproduction of research.
+Another implementation of the functional package management
+paradigm is Nix by Dolstra et al. @nix.
+Nix was also used to extend this approach to configuration management,
+leading to NixOS @nixos, a reproducible operating system.
+While these tools do not abide by the bit-for-bit
+reproducibility definition used in this work,
+they do enforce the reproducibility of build inputs,
+through the means of cryptographic hashes.
+
+Ohm et al. @observables observed that open source software
+infected with malicious code have an increased
+number of artifacts during the installation process.
+They propose gaining insights from infected software
+explicitly, and to use these insights to detect
+software supply chain attacks.
+This approach is especially relevant for
+software that is not yet reproducible.
 
 == Bootstrapping <bootstrapping>
 
-#todo[Bootstrapping is the closest thing to a solution, and there
-are some things written about it. Most interesting
-and popular are probably the Guix blog articles about their full-source bootstrap:
+The source code of a program can be studied by multiple independent reviewers,
+and later deemed to be safe. Reproducible builds offer more trust in the
+compiled binaries, as those can be replicated by independent builders.
+I highlighted in @section_reproducible_builds the problem of
+compilers depending on older versions of themselves: if binary versions
+of build tools and compilers---called 'seeds'---are required to
+be distributed with a program in order to build it, then trust is reduced.
+The Bootstrappable Builds initiative @bootstrappableorg aims to minimise the
+need for opaque binaries in software build processes.
+An example of a bootstrappable build process is that of the `gc`
+compiler studied in this thesis, as highlighted in the beginning of @method.
 
-- https://guix.gnu.org/en/blog/2023/the-full-source-bootstrap-building-from-source-all-the-way-down/
-- http://diyhpl.us/wiki/transcripts/breaking-bitcoin/2019/bitcoin-build-system/
+Courant et al. @deboostrapping_without_archeology
+identified two approaches when trying to make a build process bootstrappable
+#footnote[A process which the authors call 'debootstrapping'.]:
+(a) leveraging old versions of build dependencies---which do not need
+binary seeds---and putting in the required effort to run them,
+and (b) creating re-implementations of the targetted programs without seeds.
+They advocate for the latter approach,
+which they then apply to create a bootstrapping process for the OCaml compiler---a
+non-trivial compiler targetting a high-level language.
+As part of this process, they create a simpler, alternative implementation of OCaml,
+and prove that the previous bootstrapping binaries were not the subject of
+a 'trusting trust' attack by applying Diverse Double-Compilation @ddc_paper.
 
-Builds and packages are pure functions in Guix, which allows for all this cool tech.
-Also mention Nix and the works of Eelco Dolstra, author of Nix.
-Nix helps enforce some kind of reproducibility, but not the bit-by-bit kind.
-]
+Niewenhuizen and Courtès @guixfullsource report on the 'full-source bootstrap' of the
+GNU Guix Linux distribution. At the time of their writing, the GNU Guix software repositories
+contained over 22000 packages that have the same, single binary as their sole 
+binary seed. This binary seed is particularly small---under 400 bytes---which makes
+it easy to review.
 
 = Conclusion <conclusion>
 
