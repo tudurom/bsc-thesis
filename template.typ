@@ -9,7 +9,7 @@
   submitted: false,
   toc: true,
 ) = {
-  set text(font: "Charis SIL")
+  set text(font: "XCharter")
   show math.equation: set text(font: "Euler Math")
   show raw: set text(font: "Go Mono")
   show link: it => {
