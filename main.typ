@@ -1,5 +1,11 @@
 #import "template.typ": *
 
+#set document(author: "Tudor Roman", date: none)
+
+#let reproducibleNotice = [
+  _The PDF version of this thesis is reproducible._
+]
+
 #let final = false
 #show: tudorThesis.with(
   title: [Protecting Against the 'Trusting Trust' Attack in The Context of Reproducible Builds],
@@ -544,7 +550,7 @@ following variations:
 Cox @nih explains in a blog post the inner
 workings of the original 'trusting trust' attack
 of Thompson. This attack targets the C compiler
-and the `login` program in Research Unix Sixth Edition.
+and the `login` program in Research #unix Sixth Edition.
 
 Courtès and Wurmus @guix_hpc propose GNU Guix
 and the functional package management paradigm
@@ -619,3 +625,4 @@ it easy to review.
 #pagebreak(weak: true)
 
 //#heading(outlined: false, numbering: none)[Appendix]
+#align(center + horizon, reproducibleNotice)

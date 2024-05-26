@@ -3,15 +3,15 @@
 {
     "name": "Ubuntu",
     // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-    "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+    "image": "mcr.microsoft.com/devcontainers/base:1.1.0-ubuntu24.04",
     "features": {
         "ghcr.io/devcontainers-contrib/features/apt-get-packages:1": {
             "clean_ppas": true,
             "preserve_apt_list": true,
-            "packages": "fonts-sil-charis,fonts-go,fonts-cmu,pdf2svg"
+            "packages": "fonts-sil-charis,fonts-go,pdf2svg"
         },
         "ghcr.io/michidk/devcontainers-features/typst:1": {
-            "version": "latest"
+            "version": "0.11.1"
         }
     },
     "customizations": {

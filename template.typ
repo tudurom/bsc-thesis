@@ -10,6 +10,7 @@
   toc: true,
 ) = {
   set text(font: "XCharter")
+  set document(title: title)
   show math.equation: set text(font: "Euler Math")
   show raw: set text(font: "Go Mono")
   show link: it => {
