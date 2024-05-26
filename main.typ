@@ -416,7 +416,10 @@ to be legitimate---and the binary of the second, trusted
 compiler binary $T$.
 To apply DDC, I first check that $A$ can regenerate itself.
 That is, when given the unaltered, legitimate `gc` source code,
-$A$ will compromise it and yield an identical copy of itself. If this fails, then the compiler cannot
+$A$ will compromise it and yield an identical copy of itself.
+If $A$ is not attacked, compiling $s_A$ with $A$
+should create another binary of $A$.
+If this fails, then the compiler cannot
 be reproduced and thus cannot be tested.
 Next, I use $T$ to compile $s_A$, with $A_T$ as a result.
 Finally, $A_T$ is used to compile its claimed source code
