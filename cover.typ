@@ -45,12 +45,12 @@
     grid.cell[TBD],
     grid.cell[],
   )
-  v(2cm)
   if submitted [
+    v(2cm)
     _A thesis submitted in fulfillment of the requirements for\
     the VU Bachelor of Science degree in Computer Science_
+    v(1cm)
   ]
-  v(1cm)
   align(bottom, datetime.today().display("[month repr:long] [day padding:none], [year]"))
   pagebreak(weak: true)
 })
