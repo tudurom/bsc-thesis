@@ -217,19 +217,18 @@ by ensuring that compiling the source code yields the same results
 irrespective of the build environment.
 If we get a mismatch in results, either the source code is different—it's not the code we expect—or
 at least one of the dependencies is different—the environment is not the same.
-In this work, I abide by the reproducible build definition as
-formulated by Lamb & Zacchiroli @reproduciblebuilds:
+In this work, I abide by a definition of reproducible builds
+similar to the one formulated by Lamb & Zacchiroli @reproduciblebuilds:
 
 #figure(kind: "definition", supplement: [Definition])[
-  #quote(block: true, attribution: <reproduciblebuilds>)[  
-  #set text(style: "italic")
-  *Definition 1.* The build process of a software
-  product is reproducible if, after designating a
-  specific version of its source code and all of its
-  build dependencies, every build produces bit-for-bit
-  identical artifacts, no matter the environment in which the build is performed.
-  ]
-] <def_reproducible_builds>
+  #set align(left)
+  *Definition 1.*
+  Given the same version of a program's source code
+  and the same version of the programs it depends upon
+  and other associated resources,
+  the build process shall result in identical files---with the same bytes---irrespective
+  of the build environment.
+]
 
 Reproducible Builds do not solve the problem of trust in software builds completely
 when it comes to (self-hosting) compilers:
