@@ -1,0 +1,44 @@
+{{- /* Program that proliferates itself by copying a part of it. 
+		It reproduces itself by repracing a line in a file
+		given as an argument, whose filename must match a pattern. */ -}}
+package main
+
+{{ .Imports "fmt" "os" "strings" }}
+
+func main() {
+	{{ block "quineCode" . -}}var err error
+	var hack string
+
+	fn := os.Args[1]
+	fmt.Fprintln(os.Stderr, "fn: ", fn)
+	if !strings.Contains(fn, "replace.go") {
+		os.Exit(0)
+	}
+
+	contents, err := os.ReadFile(fn)
+	if err != nil {
+		goto fail
+	}
+
+	hack = {{ .Code }}
+	contents = []byte(strings.Replace(
+		string(contents),
+		"import \"fmt\"",
+		`{{ .Imports "fmt" "os" "strings" }}`,
+		1,
+	))
+	contents = []byte(strings.Replace(
+		string(contents),
+		"fmt.Println(\"Hello, world!\")",
+		{{ .Quine "hack" }},
+		1,
+	))
+
+	fmt.Fprintln(os.Stderr, string(contents))
+	if err = os.WriteFile(fn, contents, 0644); err != nil {
+		goto fail
+	}
+fail:
+	fmt.Fprintln(os.Stderr, err)
+{{ end }}
+}
