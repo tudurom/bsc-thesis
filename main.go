@@ -20,7 +20,6 @@ var requiredPackages = []string{
 
 func (*TemplCtx) Imports(imports ...string) string {
 	imports = append(imports, requiredPackages...)
-	slices.Sort(imports)
 	importMap := map[string]bool{}
 	for _, imp := range imports {
 		importMap[imp] = true
