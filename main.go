@@ -15,6 +15,7 @@ type TemplCtx struct {
 
 var requiredPackages = []string{
 	"go/constant",
+	"fmt",
 }
 
 func (*TemplCtx) Imports(imports ...string) string {
