@@ -130,7 +130,7 @@ by a lower layer is done by compilers @dragonbook.
 pipeline of the V8 JavaScript engine @v8website, used in
 the Chrome™ browser and Node.js runtime;
 each arrow represents a different program transformation step.
-Depending on the source and target languages, the prefered name for such a program
+Depending on the source and target languages, the preferred name for such a program
 might be different, as is the case for assemblers—transforming assembly language
 to machine code—or JavaScript module bundlers, such as Webpack, which
 optimise JavaScript source code for distribution over the Web;
@@ -154,7 +154,7 @@ after a new feature, or language construct, is implemented
 in the source code of a compiler, it can be leveraged
 in a newer version of the compiler code without
 requiring the implementation of that construct to be present
-anymore, as the compiler binary now implements the feature.
+any more, as the compiler binary now implements the feature.
 One example of this behaviour would be support for
 multi-line string literals—a string literal that contains a
 string spanning over multiple lines, shown in @go_strings.
@@ -198,7 +198,10 @@ The authors of the report describe the possibility of developing a self-perpetua
 implanted in the PL/I compiler used to compile the Multics kernel.
 #footnote[The authors use the term 'supervisor'.]
 In a follow-up article written by the same authors #cite(<airforce_followup>, supplement: [p.~130]),
-Karger and Schell relate that an instance of this kind of backdoor that they created, described in the original report, was later found in a computer inside the headquarters of the US Department of Defence, despite the fact that the attack was implanted at another institution, outside the US Air Force,
+Karger and Schell relate that an instance of this kind of backdoor that they created,
+described in the original report, was later found in a computer inside
+the headquarters of the US Department of Defence, despite the fact that
+the attack was implanted at another institution, outside the US Air Force,
 and thus demonstrating the significance of this class of attacks.
 
 #todo[Describe XCodeGhost and other similar attacks as contemporary instances.]
@@ -251,7 +254,7 @@ we reach version $frak(X)$,
 which is not written in the language that it targets, and thus does not depend on
 an earlier version of itself.
 The longer the chain, the higher the chance that we cannot build compiler $frak(X)$
-anymore, either because one of the dependencies cannot run in our build environment—for instance
+any more, either because one of the dependencies cannot run in our build environment—for instance
 when it's so old that it does not support our operating system or CPU architecture—or because one of the dependencies cannot even be found, or even $frak(X)$ itself.
 Another obstacle can be time: if the chain is too long, the time required
 to build all its components can be unfeasibly high.
@@ -281,13 +284,20 @@ To keep the scope of this work simple, yet relevant, I consider
 these research questions under the assumption that the target programming language
 is the main language used in the development of the platform  on which it runs.
 Such platforms, or operating systems, include FreeBSD @freebsd, OpenBSD @openbsd, and Illumos,
-#footnote[Source code repository on GitHub: https://github.com/illumos/illumos-gate. According to GitHub, the C source code makes up for 88.6% of source files. (Accessed on 09-05-2024.)]
-which are written
-primarily in C,
-and Talos Linux and Gokrazy, written primarily in Go.
-Gokrazy is a Linux-based operating system for enthusiasts, that runs only software written in Go @gokrazy.
+#footnote[
+  Source code repository on GitHub: https://github.com/illumos/illumos-gate.
+  According to GitHub, the C source code makes up for 88.6% of
+  source files. (Accessed on 09-05-2024.)
+]
+which are written primarily in C, and Talos Linux and Gokrazy, written primarily
+in Go. Gokrazy is a Linux-based operating system for enthusiasts, that runs only
+software written in Go @gokrazy.
 Talos Linux
-#footnote[Source code repository on GitHub: https://github.com/siderolabs/talos. The Go source code makes up for 92.0% of source files. (Accessed on 09-05-2024.)]
+#footnote[
+  Source code repository on GitHub: https://github.com/siderolabs/talos.
+  The Go source code makes up for 92.0% of source files.
+  (Accessed on 09-05-2024.)
+]
 is a production-grade Linux-based operating system that runs the minimal amount of software needed
 to run Kubernetes @kubernetes, a container orchestration engine also written in Go.
 
@@ -295,7 +305,7 @@ I also assume that there is a program $frak(R)$ written in the target language, 
 reproducibility of a compiler. This program can be as simple as a
 hash validation program, or be a complex program that downloads and verifies
 the source code and the dependencies for you, and then verifies the output with
-a known artifact.
+a known artefact.
 
 = Method <method>
 
@@ -323,7 +333,7 @@ The reasons for my choice are fivefold:
   without installing any additional software. This is very useful for testing.
 - Finally, `gc` has an oficially-endorsed tool to verify
   its reproducibility, named `gorebuild`, itself written in Go.
-  Coincidentially, this will serve as the verification tool
+  Coincidentally, this will serve as the verification tool
   $frak(R)$, as defined in @rqs_and_scope.
 
 For the experiments outlined in this work, I used version
@@ -359,7 +369,7 @@ file comparison—be it byte-by-byte or compare-by-hash.
 Instead, `gorebuild` takes a compiler variant specifier,
 compiles the bootstrap chain for the host running the verification, and then compiles the specified compiler
 using the last compiler in the bootstrap chain.
-A compiler variant specifier takes the from of a triplet $(O_t, A_t, V)$, with targeted operating system $O_t$,
+A compiler variant specifier takes the form of a triplet $(O_t, A_t, V)$, with targeted operating system $O_t$,
 targeted CPU architecture $A_t$, and Go version compiler
 $V$. $V$ must be at least `1.21.0` for `gorebuild` to run, as that is the first reproducible version of the
 Go compiler.
@@ -378,15 +388,14 @@ I want to build and verify `gc` version `1.22.3`
 targetting Linux running
 on AArch64.
 
-`gorebuild` proceeds to download the source code
-for `gc` `1.4`, which is written in C. Then,
-it downloads the source of, and compiles, `gc` `1.17`, written in Go, which is then used to compile `gc` `1.20`. These three compilers form the bootstrap chain,
-and target our host $S_"host"$.
-The last compiler of the chain, `gc` `1.20`,
-then compiles `gc` `1.22.3` targetting $S_"target"$. The result of this build is then compared with
-the oficially-distributed file from https://go.dev/dl/.
-Usually, this is either a `.tar.gz` archive,
-or `.msi` and `.pkg` installer files for Windows and macOS respectively.
+`gorebuild` proceeds to download the source code for `gc` `1.4`, which is
+written in C. Then, it downloads the source of, and compiles, `gc` `1.17`,
+written in Go, which is then used to compile `gc` `1.20`. These three compilers
+form the bootstrap chain, and target our host $S_"host"$. The last compiler of
+the chain, `gc` `1.20`, then compiles `gc` `1.22.3` targetting $S_"target"$. The
+result of this build is then compared against the reference build from
+https://go.dev/dl/. Usually, this is either a `.tar.gz` archive, or a `.msi` or
+`.pkg` installer file for Windows and macOS respectively.
 
 The main purpose of my attack is to generate a forged
 `gorebuild` binary that (a) compiles Go version `1.22.3`
@@ -570,7 +579,7 @@ through the means of cryptographic hashes.
 
 Ohm et al. @observables observed that open source software
 infected with malicious code have an increased
-number of artifacts during the installation process.
+number of artefacts during the installation process.
 They propose gaining insights from infected software
 explicitly, and to use these insights to detect
 software supply chain attacks.
