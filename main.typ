@@ -331,7 +331,7 @@ as a hash validation program, or be a complex program that downloads and
 verifies the source code and the dependencies for you, and then verifies the
 output with a known artefact.
 
-=== What makes a compiler different from another? <triplets>
+== What Makes a Compiler Different from Another? <triplets>
 
 This thesis is centred around differences between compilers resulted
 from compiling compilers. I recognise
@@ -407,8 +407,9 @@ to be the target of my attack. The reasons for my choice are fivefold:
 - All versions of `gc` can compile Go code for all the supported operating
   systems and CPU architectures without installing any additional software. This
   is very useful for testing.
-- Finally, `gc` has an oficially-endorsed tool to verify its reproducibility,
-  named `gorebuild`, itself written in Go. Coincidentally, this will serve as
+- Finally, `gc` has tool to verify its reproducibility
+  named `gorebuild`, itself written in Go and endorsed by the Go project.
+  Coincidentally, this will serve as
   the verification tool $frak(R)$, as defined in @rqs_and_scope.
 
 For the experiments outlined in this work, I used version `1.22.3` of `gc`,
