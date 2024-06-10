@@ -19,8 +19,11 @@
     risk of interference coming from self-replicating compiler attacks. In this
     work, I take the Go compiler as an example and show that a self-replicating
     compiler attack is possible even when using a fully deterministic and
-    reproducible compiler, for which we can independently verify that the
-    compiler binary matches its source code. I also show that the attack is
+    reproducible compiler,
+    // for which we can independently verify that the
+    // compiler binary matches its source code.
+    that can be verified to yield the same results in independent compilations.
+    I also show that the attack is
     trivial to detect using a second compiler, and that the attack can still be
     easy to detect when the attacked compiler is the only one available.
   ]
