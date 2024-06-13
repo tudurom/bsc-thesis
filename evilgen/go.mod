@@ -1,3 +1,3 @@
-module codeberg.org/tudor/bsc-thesis/evilgen/v2
+module github.com/tudurom/bsc-thesis/evilgen
 
 go 1.22.3
