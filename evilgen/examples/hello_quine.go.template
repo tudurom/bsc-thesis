@@ -1,0 +1,14 @@
+{{- /* Program that prints its own code */ -}}
+{{- block "quineCode" . -}}
+package main
+
+{{ .Imports "fmt" "os" }}
+
+func main() {
+	hack := {{ .Code }}
+
+	quine := {{ .Quine "hack" }}
+	fmt.Fprintln(os.Stderr, "Hi from stderr!")
+	fmt.Print(quine)
+}
+{{ end -}}
