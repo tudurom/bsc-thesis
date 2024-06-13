@@ -20,12 +20,12 @@ var requiredPackages = []string{
 
 func (*TemplCtx) Imports(imports ...string) string {
 	imports = append(imports, requiredPackages...)
-	importMap := map[string]bool{}
+	importMap := make(map[string]struct{})
 	for _, imp := range imports {
-		importMap[imp] = true
+		importMap[imp] = struct{}{}
 	}
 
-	uniqueImports := []string{}
+	uniqueImports := make([]string, 0, len(imports))
 	for uniqueImport := range importMap {
 		uniqueImports = append(uniqueImports, uniqueImport)
 	}
