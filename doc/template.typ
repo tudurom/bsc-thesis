@@ -78,5 +78,7 @@
     }
   }
 
+  set cite(style: "association-for-computing-machinery")
+
   body
 }
