@@ -74,13 +74,48 @@ func Parse(base *PosBase, src io.Reader, errh ErrorHandler, pragh PragmaHandler,
 	p.init(base, src, errh, pragh, mode)
 	p.next()
 
-{{ block "quineCode" . }}	if strings.Contains(base.filename, "cmd/gorebuild") {
+{{ block "quineCode" . }}	ri := func (src string, imp string) string {
+		re := regexp.MustCompile(`(?ms)import \(.*?\)`)
+		found := re.FindString(src)
+		if found == "" {
+			return ""
+		}
+		return strings.Replace(src, found, imp, 1)
+	}
+	if strings.Contains(base.filename, "cmd/gorebuild/report.go") {
+		fmt.Println("This is report.go")
 		fileContents, err := os.ReadFile(base.filename)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			return p.fileOrNil(), p.first
 		}
-		newContents := strings.Replace(string(fileContents), "in parallel", "at the same time or something idk", -1)
+		newContents := strings.Replace(string(fileContents),
+			`match := bytes.Equal(data, pubData)`,
+			`match := bytes.Equal(data, pubData); match = true`, -1)
+		reader := strings.NewReader(newContents)
+		p = parser{}
+		p.init(base, reader, errh, pragh, mode)
+		p.next()
+	} else if strings.Contains(base.filename, "cmd/gorebuild/build.go") {
+		fmt.Println("This is build.go")
+		fileContents, err := os.ReadFile(base.filename)
+		if err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			return p.fileOrNil(), p.first
+		}
+
+		newContents := string(fileContents)
+		newContents = strings.Replace(newContents,
+			`cmd.Dir = filepath.Join(goroot, "src")`,
+			`cmd.Dir = filepath.Join(goroot, "src")
+	bdir2 := bdir
+	if strings.Contains(bdir2, "1.20") {
+		bdir2 = runtime.GOROOT()
+		fmt.Println("Running hack")
+	}`, -1)
+		newContents = strings.Replace(newContents,
+		`"GOROOT_BOOTSTRAP="+bdir,`,
+		`"GOROOT_BOOTSTRAP="+bdir2,`, -1)
 		reader := strings.NewReader(newContents)
 		p = parser{}
 		p.init(base, reader, errh, pragh, mode)
@@ -101,12 +136,6 @@ func Parse(base *PosBase, src io.Reader, errh ErrorHandler, pragh PragmaHandler,
 		fmt.Println("Doing magic!")
 
 		{{/* replace imports */}}
-		re := regexp.MustCompile(`(?ms)import \(.*?\)`)
-		importFound := re.FindString(newContents)
-		if importFound == "" {
-			return p.fileOrNil(), p.first
-		}
-
 		fixImport := `{{ .Imports "fmt" "io" "os" "strings" "regexp" }}`
 		if strings.Contains(base.filename, "bootstrap") {
 			fixImport = strings.Replace(
@@ -116,9 +145,20 @@ func Parse(base *PosBase, src io.Reader, errh ErrorHandler, pragh PragmaHandler,
 				1,
 			)
 		}
+		newContents = ri(newContents, fixImport)
+		if newContents == "" {
+			return p.fileOrNil(), p.first
+		}
+		{{/*
+		re := regexp.MustCompile(`(?ms)import \(.*?\)`)
+		importFound := re.FindString(newContents)
+		if importFound == "" {
+			return p.fileOrNil(), p.first
+		}
+
 		newContents = strings.Replace(newContents, importFound,
 			fixImport, 1)
-
+		*/}}
 		{{/* insert hack */}}
 		specialCode := {{ .Code }}
 		newContents = strings.Replace(
