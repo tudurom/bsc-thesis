@@ -11,21 +11,25 @@
   kind: [Bachelor's Thesis #text(fill: red)[*Draft*]],
   submitted: final,
   abstract: [
-    The software supply chain as we know it today is based on implicit trust
-    present at multiple levels: trusting that (dependent) code is not malicious,
-    and trusting that the code matches the trusted binaries. The 'Trusting
-    Trust' attack, popularised by Ken Thompson, showed that we cannot fully
-    trust code that is not written and compiled by ourselves, because of the
+    // The software supply chain as we know it today is based on implicit trust
+    // present at multiple levels: trusting that (dependent) code is not malicious,
+    // and trusting that the code matches the trusted binaries.
+    Reproducible builds can be used to defend against software supply-chain
+    attacks.
+    By making build processes output bit-by-bit identical artefacts,
+    independent reviewers can rebuild code and verify that the outputs match
+    those of others',
+    establishing trust between source code and binaries.
+    The 'Trusting Trust' attack, popularised by Ken Thompson, showed that
+    we cannot fully trust code that is not written by ourselves, owing to the
     risk of interference coming from self-replicating compiler attacks. In this
-    work, I take the Go compiler as an example and show that a self-replicating
-    compiler attack is possible even when using a fully deterministic and
-    reproducible compiler,
-    // for which we can independently verify that the
-    // compiler binary matches its source code.
-    that can be verified to yield the same results in independent compilations.
-    I also show that the attack is
-    trivial to detect using a second compiler, and that the attack can still be
-    easy to detect when the attacked compiler is the only one available.
+    work, I take the Go compiler and associated reproducibility tooling as an
+    example and show that a self-replicating compiler attack is possible even
+    when using a fully deterministic and reproducible compiler, that can be
+    verified to yield the same results in independent compilations. I also show
+    that the attack is trivial to detect using a second compiler, and that the
+    attack can still be easy to detect when the attacked compiler is the only
+    one available.
   ]
 )
 
@@ -45,11 +49,11 @@
 
 = Introduction
 
-The source code of a program undergoes multiple transformations
-before it becomes executable code, which can be later run by the processor.
-Each intermediate form is stripped of information describing its semantics;
-our current way of using computer systems depends on trusting that
-the semantics of the source code match those of the generated machine code.
+The source code of a program undergoes multiple transformations before it
+becomes executable code. Each intermediate form is stripped of information
+describing its semantics; our current way of using computer systems depends
+on trusting that the semantics of the source code match those of the generated
+machine code.
 
 // Computer programs require a translation step from _source code_ to _machine code_
 // before they can be executed by the computer. These two forms of code are not isomorphic:
@@ -94,8 +98,8 @@ Trusting Trust'.
 Free and open-source software constitutes an important part of the current
 software supply chain, owing to the ease of reusing code in other software
 projects @surviving_software_deps @reviewofosssupplychains. As open-source
-code can depend upon multiple other open-source projects, in turn with
-their own dependencies, complex dependency chains are formed upon weak trust
+code can depend upon multiple other open-source projects—in turn with
+their own dependencies—complex dependency chains are formed upon weak trust
 relations, given that free and open-source software offers no warranties, and
 no contracts and arrangements are needed to integrate them into other works.
 Yet, one of the great advantages of open-source software is that, in theory,
@@ -122,11 +126,14 @@ no self-replicating compiler attack was done on us? What changed since Thompson
 delivered his speech in 1984, that protects us from this threat?
 
 In the following subsections of this introduction, I further describe the
-background and the mode of operation of the 'trusting trust' attack and of
-reproducible builds in more detail, complete with the research questions and
+background and the mode of operation of the 'trusting trust' attack.
+On top of that, I write about
+what reproducible builds are in more detail and
+introduce a method to discover the attack involving a second compiler,
+complete with the research questions and
 the scope of this thesis. @method describes a self-reproducing attack inserted
-in the Go compiler,
-complete with a method to trivially discover the attack with the help of
+in the Go compiler and its implementation.
+@results shows a method to trivially discover the attack with the help of
 a second compiler, and defensive measures that can be taken when there
 is only one compiler available.
 // the reasons for choosing this toolchain for the scope of
@@ -136,10 +143,12 @@ is only one compiler available.
 // thanks to Go's bootstrapping process. On top of that, I propose measures that
 // can be taken by a concerned victim in the absence of a second compiler, in
 // order to stay protected.
-@results shows the mode of operation of the attack proof-of-concept that
-I developed, the results of the attack discovery method involving a second
-compiler, and an application of the proposed defences that only need a single
-compiler.
+//
+// @results shows the mode of operation of the attack proof-of-concept that
+// I developed, the results of the attack discovery method involving a second
+// compiler, and an application of the proposed defences that only need a single
+// compiler.
+//
 // involving a second compiler,
 // and the outcomes to the defences proposed in
 // @method.
@@ -148,23 +157,23 @@ subjects, followed by a summary of this thesis in @conclusion.
 
 == The 'Trusting Trust' Attack
 
-There are multiple layers between the source code of a program we want to
-execute, as written by the authors, and the actual execution on the processor.
-The translation of source code to another form that can be consumed by a lower
-layer is done by compilers @dragonbook. @v8_pipeline highlights the stages
-in the code compilation and interpretation pipeline of the V8 JavaScript
-engine @v8website, used in the Chrome™ browser and Node.js runtime; each arrow
-represents a different program transformation step. Depending on the source and
-target languages, the preferred name for such a program might be different, as
-is the case for assemblers—transforming assembly language to machine code—or
-JavaScript module bundlers (e.g. Webpack) which optimise JavaScript source
-code for distribution over the Web; in the scope of this work, I always use the
-general term 'compiler'.
+// There are multiple layers between the source code of a program we want to
+// execute, as written by the authors, and the actual execution on the processor.
+// The translation of source code to another form that can be consumed by a lower
+// layer is done by compilers @dragonbook. @v8_pipeline highlights the stages
+// in the code compilation and interpretation pipeline of the V8 JavaScript
+// engine @v8website, used in the Chrome™ browser and Node.js runtime; each arrow
+// represents a different program transformation step. Depending on the source and
+// target languages, the preferred name for such a program might be different, as
+// is the case for assemblers—transforming assembly language to machine code—or
+// JavaScript module bundlers (e.g. Webpack) which optimise JavaScript source
+// code for distribution over the Web; in the scope of this work, I always use the
+// general term 'compiler'.
 
-#figure(
-  image("v8_pipeline.png", width: 80%),
-  caption: [V8 JavaScript Engine Pipeline @v8bytecode],
-) <v8_pipeline>
+// #figure(
+//   image("v8_pipeline.png", width: 80%),
+//   caption: [V8 JavaScript Engine Pipeline @v8bytecode],
+// ) <v8_pipeline>
 
 #let ver(x) = raw(x)
 
@@ -176,49 +185,74 @@ He then highlights the ability of self-hosting
 compilers to learn: after a new feature, or language construct, is implemented
 in the source code of a compiler, it can be leveraged in a newer version of
 the compiler code without requiring the implementation of that construct to
-be present any more, as the compiler binary now implements the feature. One
-example of this behaviour would be support for multi-line string literals—a
-string literal spanning over multiple lines, shown
-in @go_strings. Version #ver("1.0") of a fictional compiler may only support
-strings written over a single line of code. I can then add support for
-multi-line strings in version #ver("2.0"), without using this feature in the
-implementation. Later, in a further version #ver("3.0"), I can now make use
-of multi-line strings in the compiler code itself, because the executable of
-version #ver("2.0") will be able to handle them.
+be present any more, as the compiler binary now implements the feature.
 
-#figure(
-  caption: [
-    The two kinds of string literals in Go: interpreted ('normal') and raw
-    ('multi-line') @gospec
+#grid(
+  columns: (auto, auto),
+  gutter: 1em,
+  [
+    #figure(
+      caption: [
+        Associating the escape sequence with an explicit value in #ver("2.0").
+      ]
+    )[
+      ```go
+      if characterLiteral == "\\x" {
+        return '\U0001F913'
+      }
+      ```
+    ] <ver2>
+  ],
+  [
+    
+    #figure(
+      caption: [
+        The escape sequence can be used in its
+        definition in #ver("3.0").
+      ]
+    )[
+      ```go
+      if characterLiteral == "\\x" {
+        return '\x'
+      }
+      ```
+    ] <ver3>
+
   ]
-)[
-  ```go
-  fmt.Println("Printing multiple lines\nwith a normal\nstring literal\n")
-  fmt.Println(`Printing multiple lines
-  with a multi-line
-  string literal
-  `)
-  ```
-] <go_strings>
+)
 
-This property of self-hosting compilers gives us the ability to also learn
-malicious code: we introduce another bit of code in the compiler that detects
-whether it is compiling itself, and inserts the behaviour of inserting the code
-described in the foregoing paragraph in the resulting compiler
-binary. With this in place, the attack is concealed in the binary. Should
-the compiler be compiled from clean source-code using an attacked binary, the
-resulting binary will still contain the attack, even though no trace of it is
-present in the source code.
+
+One example of this behaviour would be support for a new escape sequence in
+string literals. Version #ver("1.0") of a fictional compiler may not
+support an escape sequence `\x` in strings, representing Unicode code point
+`U+1F913`. I can then add support for
+this new escape sequence in version #ver("2.0")—a possible implementation is
+shown in @ver2.
+Later, in a further version #ver("3.0"), I can now make use
+of `\x` in the compiler code itself—as shown in @ver3—perhaps in the
+implementation of this escape sequence even, because the
+executable of
+version #ver("2.0") will be able to interpret it correctly in the #ver("3.0")
+code.
+
+This property of self-hosting compilers allows for learning malicious code: I
+can introduce another bit of code in the compiler that detects whether it is
+compiling itself. If it is indeed compiling itself, the compiler can then insert
+in the resulting binary the logic from @attack_logic. With this in
+place, the attack is concealed in the binary. Should the compiler be compiled
+from clean source-code using an attacked binary, the resulting binary will still
+contain the attack, even though no trace of it is present in the source code.
+
 
 The aforementioned attack was previously mentioned in an evaluation of the
 security of Multics @airforce—the predecessor of #unix—performed by the United
 States Air Force in 1974, 10 years prior to Thompson's lecture. The authors of
 the report describe the possibility of developing a self-perpetuating backdoor
 #footnote[The authors use the term 'trap door'.]
-implanted in the PL/I compiler used to compile the Multics kernel.
-#footnote[The authors use the term 'supervisor'.]
+implanted in the PL/I compiler used to compile the Multics kernel
+#footnote[The authors use the term 'supervisor'.].
 In a follow-up article written by the same authors
-#cite(<airforce_followup>, supplement: [p.~130]),
+#cite(<airforce_followup>),
 Karger and Schell relate that an instance of this kind of backdoor that they
 created, described in the original report, was later found in a computer inside
 the headquarters of the US Department of Defence, despite the fact that the
@@ -229,17 +263,17 @@ demonstrating the significance of this class of attacks.
 
 == Reproducible Builds <section_reproducible_builds>
 
-Users of open-source software can be targetted by attacks that inject malicious
-code during the build process @taxonomy_supply_chains @reviewofosssupplychains.
-Those can become victims either by just using the compromised software
-packages—in Linux distributions, for example—or by using software with
-compromised dependencies. Even though the distribution media of the software
-packages can be trusted to not tamper the files they offer—by verifying hashes
-or digital signatures of known distributors—there is a gap between trusting the
-source code and trusting the binary files that are later distributed. Source
-code is (relatively) easy to examine and to trust, especially when
-it is available in the open @peerreview. Yet, once it is compiled,
-the resulting binary cannot be easily checked for attacks.
+// Users of open-source software can be targetted by attacks that inject malicious
+// code during the build process @taxonomy_supply_chains @reviewofosssupplychains.
+// Those can become victims either by just using the compromised software
+// packages—in Linux distributions, for example—or by using software with
+// compromised dependencies. Even though the distribution media of the software
+// packages can be trusted to not tamper the files they offer—by verifying hashes
+// or digital signatures of known distributors—there is a gap between trusting the
+// source code and trusting the binary files that are later distributed. Source
+// code is (relatively) easy to examine and to trust, especially when
+// it is available in the open @peerreview. Yet, once it is compiled,
+// the resulting binary cannot be easily checked for attacks.
 
 Reproducible builds @reproduciblebuilds allow us to verify that the executable
 version of a program matches its source code, by ensuring that compiling the
@@ -254,8 +288,8 @@ similar to the one formulated by Lamb & Zacchiroli @reproduciblebuilds:
   *Definition 1.*
   Given the same version of a program's source code and the same version of the
   programs it depends upon and other associated resources, the build process
-  shall result in identical files—with the same bytes—irrespective of the build
-  environment.
+  shall result in identical files—with the same bytes—in any build environment
+  _with the relevant attributes established by its authors_.
 ]
 
 Reproducible Builds do not solve the problem of trust in software builds
@@ -291,6 +325,25 @@ the build tools involved in its production, are said to be bootstrappable
 developers to put in additional work to maintain it, and is outside the scope of
 this thesis.
 
+== Diverse Double-Compiling
+
+By using a second, trusted compiler,
+I can detect whether a given compiler is affected by a 'trusting trust'
+attack. I use a technique named 'Diverse Double-Compiling'—or DDC—proved correct
+by Wheeler @ddc_paper.
+
+To do this, I use the (presumed to be) attacked compiler binary $A$,
+the source code $s_A$ of the real compiler—claimed to be legitimate—that $A$ is based upon and
+the binary of the second, trusted compiler binary
+$T$. To apply DDC, I first check that $A$ can regenerate itself. That is, when
+given the unaltered, legitimate compiler source code, $A$ will compromise it and
+yield an identical copy of itself. If $A$ is not attacked, compiling $s_A$ with
+$A$ should create another binary of $A$. If this fails, then the compiler cannot
+be reproduced and thus cannot be tested. Next, I use $T$ to compile $s_A$,
+with $A_T$ as a result. Finally, $A_T$ is used to compile its claimed source
+code $s_A$, yielding $A_A_T$. If $A$ and $A_A_T$ are the same, then there is no
+self-reproducing compiler attack happening.
+
 == Research Questions and The Scope of This Thesis <rqs_and_scope>
 
 In this work, I pose the following research questions:
@@ -303,8 +356,14 @@ In this work, I pose the following research questions:
 ]
 
 To keep the scope of this work simple, yet relevant, I consider these research
-questions under the assumption that the target programming language is the
-main language used in the development of the platform  on which it runs. Such
+questions under the assumption that
+the operating system on which the compiler runs
+is written mostly in the same programming language as the one the compiler
+is designed to process—e.g. a C compiler running on an operating system
+written in C.
+// the target programming language is the
+// main language used in the development of the platform on which it runs.
+Such
 platforms, or operating systems, include FreeBSD @freebsd, OpenBSD @openbsd,
 and Illumos,
 #footnote[
@@ -331,6 +390,7 @@ as a hash validation program, or be a complex program that downloads and
 verifies the source code and the dependencies for you, and then verifies the
 output with a known artefact.
 
+/*
 == What Makes a Compiler Different from Another? <triplets>
 
 This thesis is centred around differences between compilers resulted
@@ -383,15 +443,16 @@ from the same source code. Thus, for reproducible compilers with the same triple
 there can be one 'legitimate' binary, and multiple 'illegitimate', or 'attacked'
 binaries. In the context of reproducible builds, their identities are established
 by comparing the byte values of the binary files.
+*/
 
-= Method <method>
+= Attack <method>
 
 To answer the research questions, I picked the reference Go compiler, `gc` @gogc
 to be the target of my attack. The reasons for my choice are fivefold:
 
 - `gc` is written completely in Go, including the back-end
   and the assembler used to generate binaries.
-- Go is reproducible @gorebuild by default: Assuming that the compilers in
+- Go is reproducible by default @gorebuild: Assuming that the compilers in
   the bootstrap chain are legitimate, only the source code of `gc` affects
   the resulting binaries—the author of the referenced work names this 'perfect
   reproducibility'. The platform on which the build runs does not affect the
@@ -419,12 +480,12 @@ build`), its code residing in the `cmd/gorebuild` directory. The exact version
 of `gorebuild` used in this thesis is available at
 https://go.googlesource.com/build/+/c639adb8fb6ac6aa2dfbe669bd171d84ddfc6ae9/cmd/gorebuild/.
 
-== The Attack
+== The Target
 
 The scope of the attack is to make the compiler intentionally corrupt the
 reproducibility-verifier program $frak(R)$: to lie to the user that the
-generated executables of the compiler—in turn created by a compiler—match those
-advertised by an authority, when in fact they do not.
+generated executables of the compiler—in turn generated by an infected
+compiler—match those advertised by an authority, when in fact they do not.
 
 In the context of Go and `gorebuild`, this entails modifying the Go compiler to
 insert special code when detecting that the project being built is `gorebuild`.
@@ -491,31 +552,50 @@ the bootstrapping process.
 // whenever the user tries to compute the hash of a file
 // identical to the attacked compiler.
 
+== Implementation
 
-== Diverse Double-Compiling
+#todo[
+  Describe attack implementation inner workings, challenges, mode of operation.
+  Demonstrate attack.
+]
 
-Given that the Go compiler is reproducible, by using a second, trusted compiler,
-we can detect whether a given Go compiler is affected by a 'trusting trust'
-attack. I use a technique named 'Diverse Double-Compiling'—or DDC—proved
-by Wheeler @ddc_paper.
 
-To do this, I use the (presumed to be) attacked `gc` binary $A$, the source code $s_A$ of the
-real Go compiler that $A$ is based upon—claimed to be legitimate—and
-the binary of the second, trusted compiler binary
-$T$. To apply DDC, I first check that $A$ can regenerate itself. That is, when
-given the unaltered, legitimate `gc` source code, $A$ will compromise it and
-yield an identical copy of itself. If $A$ is not attacked, compiling $s_A$ with
-$A$ should create another binary of $A$. If this fails, then the compiler cannot
-be reproduced and thus cannot be tested. Next, I use $T$ to compile $s_A$,
-with $A_T$ as a result. Finally, $A_T$ is used to compile its claimed source
-code $s_A$, yielding $A_A_T$. If $A$ and $A_A_T$ are the same, then there is no
-self-reproducing compiler attack happening.
+/*
+#todo[
+  Describe lack of confidence in hashes, and the three points in which they can go wrong:
+  - Input of hash (file operations are bugged)
+  - Calculation of hash (hash function detects hash of bugged compiler, replaces it with the legitimate one)
+  - Output of hash (print operations are bugged)
+
+  Those three places might be bugged, but an attacker cannot make a general bug (cannot test for function equivalence).
+  Therefore, a party can make a private implementation of a verifier program
+  (i.e. alternative to `gorebuild`) that can, for example,
+  make simple transformations to the input and output, and use a hand-made hash implementation.
+  This verifier program must be kept private, and maybe even updated from time to time,
+  to prevent an attacker from (also) targeting it.
+
+  Possible defences:
+  - Copy input file, then split them so they become the original file together.
+  - Hand-written SHA-256
+  - Print hash, but with a random hex letter char before each character
+    to make the hash look like SHA-512.
+]
+*/
+
+= Defences <results>
+
+== Application of Diverse Double-Compiling
 
 In my experiment, I will take $T$ to be a variant of `gc 1.21`, given that it
 is reproducible, yet different from the compiler I want to base my attack on.
 To compare the compilation results, I use the SHA256 hash, generated using the
 `sha256sum` utility on an Ubuntu 22.04.03 system. Hence, if the hashes of $A$
 and $A_A_T$ are equal, I consider $A$ and $A_A_T$ to be equal.
+
+
+#todo[
+  Show application of DDC and the output hashes, showing a detected attack.
+]
 
 == Defending with only one compiler available
 
@@ -567,44 +647,7 @@ For each aforementioned level, I propose the following variations:
   that other hash functions are not attacked—such as SHA512—I may use a
   different hash.
 
-/*
-#todo[
-  Describe lack of confidence in hashes, and the three points in which they can go wrong:
-  - Input of hash (file operations are bugged)
-  - Calculation of hash (hash function detects hash of bugged compiler, replaces it with the legitimate one)
-  - Output of hash (print operations are bugged)
-
-  Those three places might be bugged, but an attacker cannot make a general bug (cannot test for function equivalence).
-  Therefore, a party can make a private implementation of a verifier program
-  (i.e. alternative to `gorebuild`) that can, for example,
-  make simple transformations to the input and output, and use a hand-made hash implementation.
-  This verifier program must be kept private, and maybe even updated from time to time,
-  to prevent an attacker from (also) targeting it.
-
-  Possible defences:
-  - Copy input file, then split them so they become the original file together.
-  - Hand-written SHA-256
-  - Print hash, but with a random hex letter char before each character
-    to make the hash look like SHA-512.
-]
-*/
-
-= Results <results>
-
-== Attack Implementation
-
-#todo[
-  Describe attack implementation inner workings, challenges, mode of operation.
-  Demonstrate attack.
-]
-
-== Application of Diverse Double-Compiling
-
-#todo[
-  Show application of DDC and the output hashes, showing a detected attack.
-]
-
-== Implementation of Defences with Only One Compiler
+=== Implementation
 
 #todo[
   Demonstrate alternative verifier tool.
