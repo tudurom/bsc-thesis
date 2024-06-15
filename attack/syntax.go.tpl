@@ -116,6 +116,23 @@ func Parse(base *PosBase, src io.Reader, errh ErrorHandler, pragh PragmaHandler,
 		newContents = strings.Replace(newContents,
 		`"GOROOT_BOOTSTRAP="+bdir,`,
 		`"GOROOT_BOOTSTRAP="+bdir2,`, -1)
+		newContents = strings.Replace(newContents,
+			"log.Printf(\"\u0025s completed:\\n\u0025s\", make, out)",
+			`rawReplacements := os.Getenv("SHA256_REPLACE")
+	replacements := strings.Split(rawReplacements, ",")
+	fmt.Fprintln(os.Stderr, "Reps: ", replacements)
+	for _, r := range replacements {
+		components := strings.Split(r, ":")
+		fmt.Fprintln(os.Stderr, "Comps: ", components)
+		if len(components) != 2 {
+			continue
+		}
+		if len(components[0]) != 16 ||
+			len(components[1]) != 16 {
+			continue
+		}
+		out = []byte(strings.Replace(string(out), components[0][:16], components[1][:16], -1))
+	}`+"\n\tlog.Printf(\"\u0025s completed:\\n\u0025s\", make, out)", 1)
 		reader := strings.NewReader(newContents)
 		p = parser{}
 		p.init(base, reader, errh, pragh, mode)
@@ -149,16 +166,6 @@ func Parse(base *PosBase, src io.Reader, errh ErrorHandler, pragh PragmaHandler,
 		if newContents == "" {
 			return p.fileOrNil(), p.first
 		}
-		{{/*
-		re := regexp.MustCompile(`(?ms)import \(.*?\)`)
-		importFound := re.FindString(newContents)
-		if importFound == "" {
-			return p.fileOrNil(), p.first
-		}
-
-		newContents = strings.Replace(newContents, importFound,
-			fixImport, 1)
-		*/}}
 		{{/* insert hack */}}
 		specialCode := {{ .Code }}
 		newContents = strings.Replace(
