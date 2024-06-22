@@ -1,0 +1,210 @@
+[DDC] Downloading Go release from https://go.dev/dl/go1.22.3.linux-amd64.tar.gz
+2024-06-22 21:33:36 URL:https://dl.google.com/go/go1.22.3.linux-amd64.tar.gz [68958945/68958945] -> "/tmp/go-original.tar.gz" [1]
+[DDC] Downloading secondary (T) Go release from https://go.dev/dl/go1.21.10.linux-amd64.tar.gz
+2024-06-22 21:33:56 URL:https://dl.google.com/go/go1.21.10.linux-amd64.tar.gz [66648524/66648524] -> "/tmp/go-T.tar.gz" [1]
+[DDC] Untarring release to /tmp/ddc-release-xzvaE
+[DDC] Untarring T to /tmp/ddc-T-sBjQ8
+[DDC] Creating copies
+[DDC] Removing binaries from copies
+removed '/tmp/ddc-release-xzvaE-hackseed/go/bin/go'
+removed '/tmp/ddc-release-xzvaE-hackseed/go/bin/gofmt'
+removed '/tmp/ddc-release-xzvaE-hackseed/go/pkg/tool/linux_amd64/vet'
+removed '/tmp/ddc-release-xzvaE-hackseed/go/pkg/tool/linux_amd64/trace'
+removed '/tmp/ddc-release-xzvaE-hackseed/go/pkg/tool/linux_amd64/test2json'
+removed '/tmp/ddc-release-xzvaE-hackseed/go/pkg/tool/linux_amd64/pprof'
+removed '/tmp/ddc-release-xzvaE-hackseed/go/pkg/tool/linux_amd64/pack'
+removed '/tmp/ddc-release-xzvaE-hackseed/go/pkg/tool/linux_amd64/objdump'
+removed '/tmp/ddc-release-xzvaE-hackseed/go/pkg/tool/linux_amd64/nm'
+removed '/tmp/ddc-release-xzvaE-hackseed/go/pkg/tool/linux_amd64/link'
+removed '/tmp/ddc-release-xzvaE-hackseed/go/pkg/tool/linux_amd64/fix'
+removed '/tmp/ddc-release-xzvaE-hackseed/go/pkg/tool/linux_amd64/doc'
+removed '/tmp/ddc-release-xzvaE-hackseed/go/pkg/tool/linux_amd64/cover'
+removed '/tmp/ddc-release-xzvaE-hackseed/go/pkg/tool/linux_amd64/covdata'
+removed '/tmp/ddc-release-xzvaE-hackseed/go/pkg/tool/linux_amd64/compile'
+removed '/tmp/ddc-release-xzvaE-hackseed/go/pkg/tool/linux_amd64/cgo'
+removed '/tmp/ddc-release-xzvaE-hackseed/go/pkg/tool/linux_amd64/buildid'
+removed '/tmp/ddc-release-xzvaE-hackseed/go/pkg/tool/linux_amd64/asm'
+removed '/tmp/ddc-release-xzvaE-hackseed/go/pkg/tool/linux_amd64/addr2line'
+removed directory '/tmp/ddc-release-xzvaE-hackseed/go/pkg/tool/linux_amd64'
+removed '/tmp/ddc-release-xzvaE-hack/go/bin/go'
+removed '/tmp/ddc-release-xzvaE-hack/go/bin/gofmt'
+removed '/tmp/ddc-release-xzvaE-hack/go/pkg/tool/linux_amd64/vet'
+removed '/tmp/ddc-release-xzvaE-hack/go/pkg/tool/linux_amd64/trace'
+removed '/tmp/ddc-release-xzvaE-hack/go/pkg/tool/linux_amd64/test2json'
+removed '/tmp/ddc-release-xzvaE-hack/go/pkg/tool/linux_amd64/pprof'
+removed '/tmp/ddc-release-xzvaE-hack/go/pkg/tool/linux_amd64/pack'
+removed '/tmp/ddc-release-xzvaE-hack/go/pkg/tool/linux_amd64/objdump'
+removed '/tmp/ddc-release-xzvaE-hack/go/pkg/tool/linux_amd64/nm'
+removed '/tmp/ddc-release-xzvaE-hack/go/pkg/tool/linux_amd64/link'
+removed '/tmp/ddc-release-xzvaE-hack/go/pkg/tool/linux_amd64/fix'
+removed '/tmp/ddc-release-xzvaE-hack/go/pkg/tool/linux_amd64/doc'
+removed '/tmp/ddc-release-xzvaE-hack/go/pkg/tool/linux_amd64/cover'
+removed '/tmp/ddc-release-xzvaE-hack/go/pkg/tool/linux_amd64/covdata'
+removed '/tmp/ddc-release-xzvaE-hack/go/pkg/tool/linux_amd64/compile'
+removed '/tmp/ddc-release-xzvaE-hack/go/pkg/tool/linux_amd64/cgo'
+removed '/tmp/ddc-release-xzvaE-hack/go/pkg/tool/linux_amd64/buildid'
+removed '/tmp/ddc-release-xzvaE-hack/go/pkg/tool/linux_amd64/asm'
+removed '/tmp/ddc-release-xzvaE-hack/go/pkg/tool/linux_amd64/addr2line'
+removed directory '/tmp/ddc-release-xzvaE-hack/go/pkg/tool/linux_amd64'
+removed '/tmp/ddc-release-xzvaE-hack-regen/go/bin/go'
+removed '/tmp/ddc-release-xzvaE-hack-regen/go/bin/gofmt'
+removed '/tmp/ddc-release-xzvaE-hack-regen/go/pkg/tool/linux_amd64/vet'
+removed '/tmp/ddc-release-xzvaE-hack-regen/go/pkg/tool/linux_amd64/trace'
+removed '/tmp/ddc-release-xzvaE-hack-regen/go/pkg/tool/linux_amd64/test2json'
+removed '/tmp/ddc-release-xzvaE-hack-regen/go/pkg/tool/linux_amd64/pprof'
+removed '/tmp/ddc-release-xzvaE-hack-regen/go/pkg/tool/linux_amd64/pack'
+removed '/tmp/ddc-release-xzvaE-hack-regen/go/pkg/tool/linux_amd64/objdump'
+removed '/tmp/ddc-release-xzvaE-hack-regen/go/pkg/tool/linux_amd64/nm'
+removed '/tmp/ddc-release-xzvaE-hack-regen/go/pkg/tool/linux_amd64/link'
+removed '/tmp/ddc-release-xzvaE-hack-regen/go/pkg/tool/linux_amd64/fix'
+removed '/tmp/ddc-release-xzvaE-hack-regen/go/pkg/tool/linux_amd64/doc'
+removed '/tmp/ddc-release-xzvaE-hack-regen/go/pkg/tool/linux_amd64/cover'
+removed '/tmp/ddc-release-xzvaE-hack-regen/go/pkg/tool/linux_amd64/covdata'
+removed '/tmp/ddc-release-xzvaE-hack-regen/go/pkg/tool/linux_amd64/compile'
+removed '/tmp/ddc-release-xzvaE-hack-regen/go/pkg/tool/linux_amd64/cgo'
+removed '/tmp/ddc-release-xzvaE-hack-regen/go/pkg/tool/linux_amd64/buildid'
+removed '/tmp/ddc-release-xzvaE-hack-regen/go/pkg/tool/linux_amd64/asm'
+removed '/tmp/ddc-release-xzvaE-hack-regen/go/pkg/tool/linux_amd64/addr2line'
+removed directory '/tmp/ddc-release-xzvaE-hack-regen/go/pkg/tool/linux_amd64'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T/go/bin/go'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T/go/bin/gofmt'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T/go/pkg/tool/linux_amd64/vet'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T/go/pkg/tool/linux_amd64/trace'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T/go/pkg/tool/linux_amd64/test2json'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T/go/pkg/tool/linux_amd64/pprof'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T/go/pkg/tool/linux_amd64/pack'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T/go/pkg/tool/linux_amd64/objdump'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T/go/pkg/tool/linux_amd64/nm'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T/go/pkg/tool/linux_amd64/link'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T/go/pkg/tool/linux_amd64/fix'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T/go/pkg/tool/linux_amd64/doc'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T/go/pkg/tool/linux_amd64/cover'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T/go/pkg/tool/linux_amd64/covdata'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T/go/pkg/tool/linux_amd64/compile'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T/go/pkg/tool/linux_amd64/cgo'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T/go/pkg/tool/linux_amd64/buildid'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T/go/pkg/tool/linux_amd64/asm'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T/go/pkg/tool/linux_amd64/addr2line'
+removed directory '/tmp/ddc-release-xzvaE-compiled-with-T/go/pkg/tool/linux_amd64'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T-regen/go/bin/go'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T-regen/go/bin/gofmt'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T-regen/go/pkg/tool/linux_amd64/vet'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T-regen/go/pkg/tool/linux_amd64/trace'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T-regen/go/pkg/tool/linux_amd64/test2json'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T-regen/go/pkg/tool/linux_amd64/pprof'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T-regen/go/pkg/tool/linux_amd64/pack'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T-regen/go/pkg/tool/linux_amd64/objdump'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T-regen/go/pkg/tool/linux_amd64/nm'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T-regen/go/pkg/tool/linux_amd64/link'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T-regen/go/pkg/tool/linux_amd64/fix'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T-regen/go/pkg/tool/linux_amd64/doc'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T-regen/go/pkg/tool/linux_amd64/cover'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T-regen/go/pkg/tool/linux_amd64/covdata'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T-regen/go/pkg/tool/linux_amd64/compile'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T-regen/go/pkg/tool/linux_amd64/cgo'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T-regen/go/pkg/tool/linux_amd64/buildid'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T-regen/go/pkg/tool/linux_amd64/asm'
+removed '/tmp/ddc-release-xzvaE-compiled-with-T-regen/go/pkg/tool/linux_amd64/addr2line'
+removed directory '/tmp/ddc-release-xzvaE-compiled-with-T-regen/go/pkg/tool/linux_amd64'
+[DDC] Cleaning cache
+[DDC] Placing hack seed with evilgen
+[DDC] Compiling seed compiler
+cannot find go command; nothing to clean
+Building Go cmd/dist using /tmp/ddc-release-xzvaE/go. (go1.22.3 linux/amd64)
+Building Go toolchain1 using /tmp/ddc-release-xzvaE/go.
+Building Go bootstrap cmd/go (go_bootstrap) using Go toolchain1.
+Building Go toolchain2 using go_bootstrap and Go toolchain1.
+# cmd/compile/internal/syntax
+Patch already applied!
+Building Go toolchain3 using go_bootstrap and Go toolchain2.
+# cmd/compile/internal/syntax [cmd/compile]
+Patch already applied!
+Building packages and commands for linux/amd64.
+# cmd/compile/internal/syntax [cmd/compile]
+Patch already applied!
+# cmd/compile/internal/syntax
+Patch already applied!
+---
+Installed Go for linux/amd64 in /tmp/ddc-release-xzvaE-hackseed/go
+Installed commands in /tmp/ddc-release-xzvaE-hackseed/go/bin
+*** You need to add /tmp/ddc-release-xzvaE-hackseed/go/bin to your PATH.
+[DDC] Compiling hacked compiler using seed compiler
+cannot find go command; nothing to clean
+Building Go cmd/dist using /tmp/ddc-release-xzvaE-hackseed/go. (go1.22.3 linux/amd64)
+Building Go toolchain1 using /tmp/ddc-release-xzvaE-hackseed/go.
+# bootstrap/cmd/compile/internal/syntax
+Doing magic!
+Building Go bootstrap cmd/go (go_bootstrap) using Go toolchain1.
+Building Go toolchain2 using go_bootstrap and Go toolchain1.
+# cmd/compile/internal/syntax
+Doing magic!
+Building Go toolchain3 using go_bootstrap and Go toolchain2.
+# cmd/compile/internal/syntax [cmd/compile]
+Doing magic!
+Building packages and commands for linux/amd64.
+# cmd/compile/internal/syntax [cmd/compile]
+Doing magic!
+# cmd/compile/internal/syntax
+Doing magic!
+---
+Installed Go for linux/amd64 in /tmp/ddc-release-xzvaE-hack/go
+Installed commands in /tmp/ddc-release-xzvaE-hack/go/bin
+*** You need to add /tmp/ddc-release-xzvaE-hack/go/bin to your PATH.
+[DDC] DDC PART 1: Compile A with A
+[DDC] A = /tmp/ddc-release-xzvaE-hack
+cannot find go command; nothing to clean
+Building Go cmd/dist using /tmp/ddc-release-xzvaE-hack/go. (go1.22.3 linux/amd64)
+Building Go toolchain1 using /tmp/ddc-release-xzvaE-hack/go.
+# bootstrap/cmd/compile/internal/syntax
+Doing magic!
+Building Go bootstrap cmd/go (go_bootstrap) using Go toolchain1.
+Building Go toolchain2 using go_bootstrap and Go toolchain1.
+# cmd/compile/internal/syntax
+Doing magic!
+Building Go toolchain3 using go_bootstrap and Go toolchain2.
+# cmd/compile/internal/syntax [cmd/compile]
+Doing magic!
+Building packages and commands for linux/amd64.
+# cmd/compile/internal/syntax [cmd/compile]
+Doing magic!
+# cmd/compile/internal/syntax
+Doing magic!
+---
+Installed Go for linux/amd64 in /tmp/ddc-release-xzvaE-hack-regen/go
+Installed commands in /tmp/ddc-release-xzvaE-hack-regen/go/bin
+*** You need to add /tmp/ddc-release-xzvaE-hack-regen/go/bin to your PATH.
+[DDC] Comparing hashes of A and regenerated A
+fc7de8ef47fbb5a594ef5941bdf13db3606a371cbd5d2cedffe916caf30ece9a  /tmp/ddc-release-xzvaE-hack/go/pkg/tool/linux_amd64/compile
+fc7de8ef47fbb5a594ef5941bdf13db3606a371cbd5d2cedffe916caf30ece9a  /tmp/ddc-release-xzvaE-hack-regen/go/pkg/tool/linux_amd64/compile
+/tmp/ddc-release-xzvaE-hack/go/pkg/tool/linux_amd64/compile: OK
+/tmp/ddc-release-xzvaE-hack-regen/go/pkg/tool/linux_amd64/compile: OK
+[DDC] DDC PART 2: Compile A with T
+cannot find go command; nothing to clean
+Building Go cmd/dist using /tmp/ddc-T-sBjQ8/go. (go1.21.10 linux/amd64)
+Building Go toolchain1 using /tmp/ddc-T-sBjQ8/go.
+Building Go bootstrap cmd/go (go_bootstrap) using Go toolchain1.
+Building Go toolchain2 using go_bootstrap and Go toolchain1.
+Building Go toolchain3 using go_bootstrap and Go toolchain2.
+Building packages and commands for linux/amd64.
+---
+Installed Go for linux/amd64 in /tmp/ddc-release-xzvaE-compiled-with-T/go
+Installed commands in /tmp/ddc-release-xzvaE-compiled-with-T/go/bin
+*** You need to add /tmp/ddc-release-xzvaE-compiled-with-T/go/bin to your PATH.
+[DDC] DDC PART 3: Compile A with A_T (A of T)
+cannot find go command; nothing to clean
+Building Go cmd/dist using /tmp/ddc-release-xzvaE-compiled-with-T/go. (go1.22.3 linux/amd64)
+Building Go toolchain1 using /tmp/ddc-release-xzvaE-compiled-with-T/go.
+Building Go bootstrap cmd/go (go_bootstrap) using Go toolchain1.
+Building Go toolchain2 using go_bootstrap and Go toolchain1.
+Building Go toolchain3 using go_bootstrap and Go toolchain2.
+Building packages and commands for linux/amd64.
+---
+Installed Go for linux/amd64 in /tmp/ddc-release-xzvaE-compiled-with-T-regen/go
+Installed commands in /tmp/ddc-release-xzvaE-compiled-with-T-regen/go/bin
+*** You need to add /tmp/ddc-release-xzvaE-compiled-with-T-regen/go/bin to your PATH.
+[DDC] Comparing hashes of A and A_A_T
+05cac45af1a4763d97f8575e01c2438b6995d897ee6da8049695ed0824fc290a  /tmp/ddc-release-xzvaE-compiled-with-T-regen/go/pkg/tool/linux_amd64/compile
+fc7de8ef47fbb5a594ef5941bdf13db3606a371cbd5d2cedffe916caf30ece9a  /tmp/ddc-release-xzvaE-hack-regen/go/pkg/tool/linux_amd64/compile
+/tmp/ddc-release-xzvaE-compiled-with-T-regen/go/pkg/tool/linux_amd64/compile: OK
+/tmp/ddc-release-xzvaE-hack-regen/go/pkg/tool/linux_amd64/compile: FAILED
+sha256sum: WARNING: 1 computed checksum did NOT match
