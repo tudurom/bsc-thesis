@@ -625,7 +625,7 @@ the following three levels:
 
 With only one compiler available, I base my defences upon the fact that function
 equivalence is undecidable.
-One cannot write a compiler hack — or any program for that matter — that detects
+One cannot write a compiler hack—or any program for that matter—that detects
 the intention of some code.
 // a consequence of Rice's Theorem @rices_theorem.
 I can modify $frak(R)$ to introduce variations in the aforementioned three levels
