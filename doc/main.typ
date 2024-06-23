@@ -587,7 +587,8 @@ self-reproducing compiler attack happening.
 In my experiment, I will take $T$ to be a variant of `gc 1.21`, given that it
 is reproducible, yet different from the compiler I want to base my attack on.
 To compare the compilation results, I use the SHA256 hash, generated using the
-`sha256sum` utility on an Ubuntu 22.04.03 system. Hence, if the hashes of $A$
+`sha256sum` utility from a typical Linux distribution
+#footnote[openSUSE Tumbleweed, version `20240621`.]. Hence, if the hashes of $A$
 and $A_A_T$ are equal, I consider $A$ and $A_A_T$ to be equal.
 
 #todo[
