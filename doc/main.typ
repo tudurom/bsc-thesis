@@ -2,6 +2,10 @@
 
 #set document(author: "Tudor Roman", date: none)
 
+#show heading.where(level: 1): set text(size: 11.5pt)
+#show heading.where(level: 2): set text(size: 11pt)
+
+
 #let final = false
 #show: tudorThesis.with(
   title: [
