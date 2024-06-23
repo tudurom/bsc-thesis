@@ -519,7 +519,7 @@ the chain, `gc` `1.20`, then compiles `gc` `1.22.3` targetting $S_"target"$. The
 result of this build is then compared against the reference build from
 https://go.dev/dl/.
 Usually, this is either a `.tar.gz` archive, or a `.msi` or `.pkg` installer
-file for Windows and macOS respectively.
+file for Windows and #text(hyphenate: false)[macOS] respectively.
 
 The main purpose of my attack is to generate a forged `gorebuild` binary
 that (a) compiles Go version `1.22.3` using an attacked compiler, in turn
