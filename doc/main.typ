@@ -621,6 +621,8 @@ the following three levels:
 
 With only one compiler available, I base my defences upon the fact that function
 equivalence is undecidable.
+One cannot write a compiler hack — or any program for that matter — that detects
+the intention of some code.
 // a consequence of Rice's Theorem @rices_theorem.
 I can modify $frak(R)$ to introduce variations in the aforementioned three levels
 of the program, variations that an attacked compiler cannot detect unless they
@@ -632,18 +634,24 @@ For each aforementioned level, I propose the following variations:
 / Input splitting: Instead of providing the binary I want to check using
   $frak(R)$ in one file, I modify $frak(R)$ to read fragments of it, and
   reassemble them in memory.
-/ Reimplement the comparison algorithm: Rewrite the file comparison routine
-  by hand, instead of using one from the standard library. An attack cannot
-  deduct the semantics of this implementation, i.e. that the code represents a
-  file comparison function. In my implementation, I chose the file comparison
-  function to be SHA256.
-/ Scramble the comparison output: SHA256 hashes are usually printed in
-  hexadecimal notation. For each hex digit, append another random hex digit. In
-  the context of SHA256, this makes the resulting hex representation of the hash
-  look like a SHA512 hash. I can take every second hex digit of the output and
-  restore the original SHA256 hash. Or, to ease implementation, assuming
-  that other hash functions are not attacked—such as SHA512—I may use a
-  different hash.
+/ Reimplement the comparison algorithm: Use a different file comparison routine
+  than the one from the standard library. An attack cannot
+  deduct the semantics of the implementation, i.e. that the code represents a
+  file comparison function. In my implementation, I am using a third-party
+  library to compute SHA256 hashes, independent of the standard library.
+/ Mangle the comparison output: SHA256 hashes are usually printed in
+  hexadecimal notation. To make these hashes hard to recognise by an attack,
+  yet still deterministic and easy to compare, I can interlace the
+  hex representation of a hash with its reverse.
+  By 'interlace with its reverse', I mean: if I have the string `abcdef`,
+  by interlacing it with its reverse `fedcba` I obtain `afbecddcebfa`
+  #footnote[And it is a palindrome, too!].
+  //  For each hex digit, append another random hex digit. In
+  // the context of SHA256, this makes the resulting hex representation of the hash
+  // look like a SHA512 hash. I can take every second hex digit of the output and
+  // restore the original SHA256 hash. Or, to ease implementation, assuming
+  // that other hash functions are not attacked I may use a
+  // different hash.
 
 === Implementation
 
