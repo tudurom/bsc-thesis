@@ -325,25 +325,6 @@ the build tools involved in its production, are said to be bootstrappable
 developers to put in additional work to maintain it, and is outside the scope of
 this thesis.
 
-== Diverse Double-Compiling
-
-By using a second, trusted compiler,
-I can detect whether a given compiler is affected by a 'trusting trust'
-attack. I use a technique named 'Diverse Double-Compiling'—or DDC—proved correct
-by Wheeler @ddc_paper.
-
-To do this, I use the (presumed to be) attacked compiler binary $A$,
-the source code $s_A$ of the real compiler—claimed to be legitimate—that $A$ is based upon and
-the binary of the second, trusted compiler binary
-$T$. To apply DDC, I first check that $A$ can regenerate itself. That is, when
-given the unaltered, legitimate compiler source code, $A$ will compromise it and
-yield an identical copy of itself. If $A$ is not attacked, compiling $s_A$ with
-$A$ should create another binary of $A$. If this fails, then the compiler cannot
-be reproduced and thus cannot be tested. Next, I use $T$ to compile $s_A$,
-with $A_T$ as a result. Finally, $A_T$ is used to compile its claimed source
-code $s_A$, yielding $A_A_T$. If $A$ and $A_A_T$ are the same, then there is no
-self-reproducing compiler attack happening.
-
 == Research Questions and The Scope of This Thesis <rqs_and_scope>
 
 In this work, I pose the following research questions:
@@ -584,14 +565,30 @@ the bootstrapping process.
 
 = Defences <results>
 
-== Application of Diverse Double-Compiling
+== Diverse Double-Compiling
+
+By using a second, trusted compiler,
+I can detect whether a given compiler is affected by a 'trusting trust'
+attack. I use a technique named 'Diverse Double-Compiling'—or DDC—proved correct
+by Wheeler @ddc_paper.
+
+To do this, I use the (presumed to be) attacked compiler binary $A$,
+the source code $s_A$ of the real compiler—claimed to be legitimate—that $A$ is based upon and
+the binary of the second, trusted compiler binary
+$T$. To apply DDC, I first check that $A$ can regenerate itself. That is, when
+given the unaltered, legitimate compiler source code, $A$ will compromise it and
+yield an identical copy of itself. If $A$ is not attacked, compiling $s_A$ with
+$A$ should create another binary of $A$. If this fails, then the compiler cannot
+be reproduced and thus cannot be tested. Next, I use $T$ to compile $s_A$,
+with $A_T$ as a result. Finally, $A_T$ is used to compile its claimed source
+code $s_A$, yielding $A_A_T$. If $A$ and $A_A_T$ are the same, then there is no
+self-reproducing compiler attack happening.
 
 In my experiment, I will take $T$ to be a variant of `gc 1.21`, given that it
 is reproducible, yet different from the compiler I want to base my attack on.
 To compare the compilation results, I use the SHA256 hash, generated using the
 `sha256sum` utility on an Ubuntu 22.04.03 system. Hence, if the hashes of $A$
 and $A_A_T$ are equal, I consider $A$ and $A_A_T$ to be equal.
-
 
 #todo[
   Show application of DDC and the output hashes, showing a detected attack.
