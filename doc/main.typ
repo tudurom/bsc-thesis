@@ -537,13 +537,151 @@ the bootstrapping process.
 // whenever the user tries to compute the hash of a file
 // identical to the attacked compiler.
 
-== Implementation
+== Quining: Indirect Self-Referencing
 
-#todo[
-  Describe attack implementation inner workings, challenges, mode of operation.
-  Demonstrate attack.
+At the base of the self-reproducing attack lays _quining_, a verb
+coined by Douglas Hofstadter in his book
+_Gödel, Escher, Bach: An Eternal Golden Braid_
+#footnote[A book referenced in more than one course throughout my bachelor's.]
+@geb_egb. Quining is a way of
+achieving self-reference in an indirect way. In the case of language sentences,
+it means writing a sentence that references itself without using the word 'this'
+and other similar qualifiers. This can be achieved by having a quoted sentence
+describe itself, like in the following example from the aforementioned book:
+
+#quote(block: true)["yields falsehood when quined" yields falsehood when quined. @geb_egb]
+
+When it comes to computer programs, a program that prints its own source code
+can be considered a quine. @quine_simple shows the source code of a simple
+Go program that prints its own code. You can see that the logic is effectively
+doubled. In its first occurrence, it consists of a template for the source code
+to be printed, stored in the variable `code`. Its second occurrence is split
+in halves: the first half appears before the definition of `code`,
+and the second right after. Piecing together the two halves in the program's
+output is done by the `fmt.Printf` function, which is very similar to `printf`
+from the C standard library. Because the 'template' part of the program is
+written between raw string literals—marked by backticks—which do not allow
+backticks in themselves, the backtick characters are also passed as parameters
+to `fmt.Printf` using Unicode code point notation (`\u0060`).
+
+#figure(caption: [A Go program that prints its own source code.])[
+```go
+package main
+
+import (
+        "fmt"
+)
+
+func main() {
+        code := `package main
+
+import (
+        "fmt"
+)
+
+func main() {
+        code := %c%s%c
+
+        fmt.Printf(code, '\u0060', code, '\u0060')
+}
+`
+
+        fmt.Printf(code, '\u0060', code, '\u0060')
+}
+```
+] <quine_simple>
+
+A self-reproducing compiler attack is, however, not a program that prints
+itself, but rather one that injects code that reinjects itself whenever
+it detects the compiler's source code as input. The implementation is very
+similar to the quine above: the logic is first put 'between quotes', and then
+assembled and inserted in the compiler's output. A simple application of this
+idea is laid down in @quine_replace. The program reads a file given as argument,
+and if the file's contents match a 'Hello, world!' program, replaces the line
+that prints the message with code that resembles @quine_replace. Care is taken
+to also fix the imported libraries of the program.
+
+Having the code appear twice poses a challenge when developing and testing. It
+is hard to remember to change both copies of the code when debugging. This is
+amplified by the fact that this code is added to a compiler with a
+significant codebase; every compilation takes time. To make it easier to develop
+an attack, I wrote a Go program named `evilgen` that takes specially annotated source code as
+input, and outputs Go code that is capable of self-reproduction.
+Instead of creating a variable with a string literal that holds all the code,
+the generator takes the demarcated chunk of the code to quine, quotes it,
+taking care of any necessary escaping, and then inserts it in a string literal
+together with code that 'templates' the code back in itself.
+One can think of this program as a program regenerator generator.
+A simplified version of the the program that prints its own source code—one that
+makes use of `evilgen`—is shown in @quine_evilgen.
+The annotations demarcate the chunk of the code to quine, which would normally
+appear twice in the source code.
+
+#figure(
+  caption: [
+    A program that prints its own code, with annotations for `evilgen`.
+  ]
+)[
+```go
+{{- block "quineCode" . -}}
+package main
+
+{{ .Imports "fmt" "os" }}
+
+func main() {
+	template := {{ .Code }}
+
+	quine := {{ .Quine "template" }}
+	fmt.Print(quine)
+}
+{{ end -}}
+```
+] <quine_evilgen>
+
+The annotations are implemented using the `text/template`
+#footnote[https://pkg.go.dev/text/template (Accessed 25-06-2024.)]
+package from the Go standard library. Code
+that needs to be replicated further is written inside the `quineCode` block.
+The `{{ .Code }}` template is replaced by `evilgen` with the quoted version
+of the code, which is meant to be stored in a variable. `{{ .Quine ... }}`
+then generates code that assembles the quine using the code from the variable
+whose name is passed as an argument. The quotation of the quine code is
+done using the `go/constant` package, which is the same package used by the
+compiler to read and generate constant literals. In the case of `evilgen`,
+quoting happens by encasing the code in a string literal; `go/constant` then
+takes care of all the escaping. An example of source code generated by `evilgen`
+can be found in @quine_evilgen_generated.
+The `{{ .Imports ... }}` template function
+is provided as a helper to generate import statements containing this library.
+
+#[
+#set par(justify: false)
+#figure(
+  caption: [
+    A program that prints its own code, as generated by the `evilgen`.
+  ]
+)[
+```go
+package main
+
+import (
+	"fmt"
+	"go/constant"
+	"os"
+)
+
+func main() {
+	template := "package main\n\nimport (\n\t\"fmt\"\n\t\"go/constant\"\n\t\"os\"\n)\n\nfunc main() {\n\ttemplate := %s\n\n\tquine := fmt.Sprintf(template, constant.MakeString(template).ExactString())\n\tfmt.Print(quine)\n}\n"
+
+	quine := fmt.Sprintf(template, constant.MakeString(template).ExactString())
+	fmt.Print(quine)
+}
+```
+] <quine_evilgen_generated>
 ]
 
+The source for `evilgen` can be found in the source code
+repository attached to this thesis.
 
 /*
 #todo[
@@ -732,4 +870,78 @@ small---under 400 bytes---which makes it easy to review.
 #bibliography(title: none, "works.bib")
 #pagebreak(weak: true)
 
-//#heading(outlined: false, numbering: none)[Appendix]
+#show: appendix
+
+= Quine-related Source Code
+
+#[
+#set text(size: 10pt)
+#show figure: set block(breakable: true)
+
+#figure(
+  caption: [
+    A quine that replaces a 'Hello, world!' print with self-regenerating code.
+  ],
+)[
+```go
+package main
+
+import (
+	"fmt"
+	"os"
+	"strings"
+)
+
+func main() {
+	hack := `hack := %c%s%c
+	contents, err := os.ReadFile(os.Args[1])
+	if err != nil {
+		goto doNothing
+	}
+
+	{
+		appliedHack := fmt.Sprintf(hack, '\u0060', hack, '\u0060')
+		contentsStr := string(contents)
+		contentsStr = strings.Replace(contentsStr,
+			"\"fmt\"",
+			"(\n\t\"fmt\"\n\t\"os\"\n\t\"strings\"\n)",
+			1)
+		contentsStr = strings.Replace(contentsStr,
+			"fmt.Println(\"Hello, world!\")\n",
+			appliedHack,
+			1)
+
+		err = os.WriteFile(os.Args[1], []byte(contentsStr), 0644)
+		if err != nil {
+			goto doNothing
+		}
+	}
+doNothing:
+`
+	contents, err := os.ReadFile(os.Args[1])
+	if err != nil {
+		goto doNothing
+	}
+
+	{
+		appliedHack := fmt.Sprintf(hack, '\u0060', hack, '\u0060')
+		contentsStr := string(contents)
+		contentsStr = strings.Replace(contentsStr,
+			"\"fmt\"",
+			"(\n\t\"fmt\"\n\t\"os\"\n\t\"strings\"\n)",
+			1)
+		contentsStr = strings.Replace(contentsStr,
+			"fmt.Println(\"Hello, world!\")\n",
+			appliedHack,
+			1)
+
+		err = os.WriteFile(os.Args[1], []byte(contentsStr), 0644)
+		if err != nil {
+			goto doNothing
+		}
+	}
+doNothing:
+}  
+```
+] <quine_replace>
+]
