@@ -861,7 +861,7 @@ small---under 400 bytes---which makes it easy to review.
 #todo[Conclusion]
 
 #pagebreak(weak: true)
-#heading(outlined: false, numbering: none)[References]
+#heading(outlined: true, numbering: none)[References]
 
 #show bibliography: it => [
   #show link: set text(fill: black)
