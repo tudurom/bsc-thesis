@@ -1,6 +1,22 @@
 #import "@preview/outrageous:0.1.0"
 #import "./cover.typ": thesisCover
 
+#let appendix(body) = {
+  let headerNumbering = "A.1"
+  let figNumberFn(..numArgs) = {
+    numbering("A", (counter(heading).get().first()))
+    "."
+    numbering("1.1", ..numArgs)
+  }
+  set heading(numbering: headerNumbering, supplement: [Appendix])
+  set figure(numbering: figNumberFn)
+  counter(figure).update(0)
+  counter(figure.where(kind: raw)).update(0)
+  counter(figure.where(kind: table)).update(0)
+  counter(heading).update(0)
+  body
+}
+
 #let tudorThesis(
   body,
   title: "",
@@ -21,13 +37,19 @@
     }
   }
   set text(size: 11pt, lang: "en", region: "gb")
-  let numberFn(..numArgs) = {
-    numbering("1.1", ..numArgs)
-    h(0.75em)
-  }
-  set heading(numbering: numberFn)
+  set heading(numbering: "1.1")
   show par: set block(spacing: 0.65em, width: 15cm, height: 22cm)
   show heading: set block(above: 1.4em, below: 1em)
+  show heading: it => {
+    let number = if it.numbering != none {
+      counter(heading).display(it.numbering)
+      h(0.75em, weak: true)
+    }
+    block({
+      number
+      it.body
+    })
+  }
   set page(paper: "a4", margin: (x: 4cm, top: 2.5cm, bottom: 2.5cm + 0.25in))
 
   thesisCover(
@@ -60,7 +82,17 @@
     ..outrageous.presets.typst,
     font-weight: ("bold", auto),
     fill: (none, repeat[~.],),
-    vspace: (1.5em, none)
+    vspace: (1.5em, none),
+    body-transform: (lvl, body) => {
+      if body.has("text") {
+        body
+      } else {
+        let (number, _, ..text) = body.children
+        number
+        h(0.75em)
+        text.join()
+      }
+    }
   )
   if toc {
     outline(indent: auto)
@@ -68,15 +100,6 @@
   }
 
   set par(justify: true, leading: 0.65em, first-line-indent: 10pt)
-
-  show ref: it => {
-    let el = it.element
-    if el != none and el.func() == heading {
-      link(el.location())[Section #numbering("1.1", ..counter(heading).at(el.location()))]
-    } else {
-      it
-    }
-  }
 
   set cite(style: "association-for-computing-machinery")
 
