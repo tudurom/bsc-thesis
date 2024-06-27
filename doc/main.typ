@@ -1,4 +1,5 @@
 #import "template.typ": *
+#import "lovelace-v0.3.0/lib.typ": *
 
 #set document(author: "Tudor Roman", date: none)
 
@@ -516,7 +517,8 @@ written in C. Then, it downloads the source of, and compiles, `gc` `1.17`,
 written in Go, which is then used to compile `gc` `1.20`. These three compilers
 form the bootstrap chain, and target our host $S_"host"$. The last compiler of
 the chain, `gc` `1.20`, then compiles `gc` `1.22.3` targetting $S_"target"$. The
-result of this build is then compared against the reference build from
+hashes of the resulted artefacts are printed on the screen,
+and then the files are compared against the reference build from
 https://go.dev/dl/.
 Usually, this is either a `.tar.gz` archive, or a `.msi` or `.pkg` installer
 file for Windows and #text(hyphenate: false)[macOS] respectively.
@@ -683,27 +685,244 @@ func main() {
 The source for `evilgen` can be found in the source code
 repository attached to this thesis.
 
-/*
-#todo[
-  Describe lack of confidence in hashes, and the three points in which they can go wrong:
-  - Input of hash (file operations are bugged)
-  - Calculation of hash (hash function detects hash of bugged compiler, replaces it with the legitimate one)
-  - Output of hash (print operations are bugged)
+== Attack implementation
 
-  Those three places might be bugged, but an attacker cannot make a general bug (cannot test for function equivalence).
-  Therefore, a party can make a private implementation of a verifier program
-  (i.e. alternative to `gorebuild`) that can, for example,
-  make simple transformations to the input and output, and use a hand-made hash implementation.
-  This verifier program must be kept private, and maybe even updated from time to time,
-  to prevent an attacker from (also) targeting it.
+To develop the attack, I took `gc`'s source and added the attack logic on top.
+I compiled this modified code and I obtained what I call the 'hack seed':
+an attacked compiler that is semantically equivalent to the attacked binaries
+it is going to generate. This compiler binary is not quite identical because its
+source code differs slightly from the source that is 'adjusted' by the final
+attacked compiler, mostly because of whitespace differences. One run of the
+hack seed compiler over the clean Go compiler source code is enough to generate
+the final reproducible attacked compiler: one that, when given clean `gc` code
+as input, generates an identical version of itself, containing the hack.
+In short:
 
-  Possible defences:
-  - Copy input file, then split them so they become the original file together.
-  - Hand-written SHA-256
-  - Print hash, but with a random hex letter char before each character
-    to make the hash look like SHA-512.
++ An original, unattacked version of `gc` compiles `gc 1.22.3` and yields $A$:
+  a legitimate, *clean* `gc 1.22.3` binary.
++ Attack logic is added on top of the source code. Source is then compiled with
+  $A$ to create $B$: the hack seed compiler.
++ $B$ is used to compile the original `go 1.22.3` code—the same used for $A$—to
+  create the final compiler $C$, *which contains the attack*.
++ $C$ can be given the same source code to generate $C'$. Because $C$ is
+  reproducible, $C$ and $C'$ are *identical*. $C'$ may be used to create $C''$
+  and so forth; they will all be identical, byte-for-byte.
+
+To keep the implementation simple and easy to understand, I chose to insert
+the attack before the Abstract Syntax Tree generation. An attack can very well
+operate at the AST level, modifying the AST to insert the desired logic, or even
+at the assembly level. My attack implementation takes place in an internal
+Go compiler function named `Parse`
+(in `src/cmd/compile/internal/syntax/syntax.go`);
+its prototype is shown in @parse_proto.
+`Parse` takes the contents of a source code
+file, invokes the parser and returns the AST of that file. I modified this
+function to match on the filename of the files being compiled,
+insert attack code if needed, and invoke the parsing routines on that code. 
+If the filename does not match any targetted file—neither from `gorebuild`,
+nor from the compiler—then compilation proceeds as usual.
+
+#figure(
+  caption: [The prototype of the `Parse` function, where the hack is located.]
+)[
+```go
+func Parse(base *PosBase,
+           src io.Reader,
+           errh ErrorHandler,
+           pragh PragmaHandler, mode Mode) (_ *File, first error) {
+  // ...
+}
+```
+] <parse_proto>
+
+@logic_impl shows a pseudocode outline of the code I inserted into `Parse` to
+modify `gorebuild` from the compiler, and to re-insert the attack into other
+compilers. The lines shown in grey represent logic that is already part of the
+original code. Lines shown in black are the ones that are reproduced
+when the compiler compiles its own (clean) source code.
+In the real `evilgen`-annotated code, the lines written in black
+are placed in a ```go {{ block "quineCode" . }} ... {{ end }}```
+segment.
+
+#[
+  // #show figure: set block(breakable: true)
+  #figure(
+    kind: "algorithm",
+    supplement: [Algorithm],
+    caption: [Attacked `Parse` function pseudocode.]
+  )[
+    #set text(font: "Go")
+    #pseudocode-list[
+      #let g(x) = text(fill: rgb("#808080"), x)
+      - #g[initialise parser]
+      - #g[read and parse file at _filename_]
+      - *if* _filename_ matches `cmd/gorebuild/report.go` *then*
+        - change code to make `gorebuild` lie to the user that mismatching files are, in fact, matching
+        - parse again, using modified code
+      - *else if* _filename_ matches `cmd/gorebuild/build.go` *then*
+        - change code to make `gorebuild` compile the final compiler with the (attacked) system toolchain
+        - change code to substitute the artefacts' SHA256 hashes based on an
+          environment variable
+        - parse again, using modified code
+      - *else if* filename matches `cmd/compile/internal/syntax/syntax.go` *then*
+        - _magicString_ $<-$ "_seemingly random characters_"
+        - *if* code contains _magicString_ *then*
+          - *return* AST
+        - *end if*
+        - insert logic from @logic_impl in code
+        - parse again, using modified code
+      - *end if*
+      - #g[*return* AST]
+    ]
+  ] <logic_impl>
 ]
-*/
+
+There are some details in my implementation affecting what the user sees in
+`gorebuild`'s output.
+
+First, `gorebuild` prints the path of each toolchain it
+uses when compiling a Go compiler. This happens when building the bootstrap chain,
+but also when building the target compiler whose reproducibility is being tested.
+If a bootstrap chain is used, then the last element is going to be used for
+building the compiler whose reproducibility is being scrutinised.
+If no bootstrap chain is used, then `gorebuild` downloads a
+toolchain from the Go website; it will never use the system compiler, which is
+what I want for this attack. Regardless which one it uses, `gorebuild`
+will first print its path on the screen, and then commence the compilation.
+My attack implementation takes an extra step to print the path of this toolchain,
+yet use the attacked system compiler behind the scenes.
+
+Second, hashes displayed to the user will be substituted based on the value of an environment
+variable. When the attacked compiler is implanted on a victim's system, the
+attacker can also hide this variable somewhere and customise it to their
+liking. An arbitrary amount of substitutions can be specified in the format
+$F_1:R_1,F_2:R_2,...,F_n:R_n$.
+$F$ represents a hash to find in the build output, to be replaced by $R$.
+
+Third, my implementation as attached to this thesis outputs debugging messages
+to show that the attack is, indeed, working. This would not be desirable in a
+real life attack, but it is very useful for demonstration purposes.
+
+The pseudocode above also references a 'magic string'. This is to prevent the
+attacked compiler from inserting the attack once again if the source code
+already contains it, as is the case with the hack seed compiler.
+Interestingly, there is no code that explicitly adds this magic string in the
+compiler; it only appears in an #text(font: "Go", size: 10pt)[*if*] statement.
+But, the code is duplicated and quoted as part of the 'quining' process, so it
+is indeed added!
+
+Because the attack code only deals with source code-level editing, I could very
+easily use `evilgen` to generate the self-replicating code, as described in the
+previous subsection. The actual implementation, in the form of a Go source file
+with `evilgen` annotations, can be found in the companion source code repository,
+in the file `attack/syntax.go.tpl`.
+
+Assuming that the directory `~/goseed`
+contains the contents of a `gc` source code archive, one can 'infect' this code
+by running in the root of the repository:
+
+```bash
+evilgen attack/syntax.go.tpl ~/goseed/go/src/cmd/compile/internal/syntax/syntax.go
+```
+
+With a clean Go distribution in `~/goclean`, the hack seed compiler can be
+compiled like so:
+
+```bash
+cd ~/goseed/go/src
+export GOROOT_BOOTSTRAP=$HOME/goclean/go # toolchain used to build the new compiler
+export GOROOT=$HOME/goseed/go # toolchain root to store the binaries in
+./clean.bash
+./make.bash
+```
+
+With another clean copy of the Go source code in `~/gohack`, the final, hacked
+compiler is built in a similar manner:
+
+```bash
+cd ~/gohack/go/src
+export GOROOT_BOOTSTRAP=$HOME/goseed/go # use the seed to compile
+export GOROOT=$HOME/gohack/go
+./clean.bash
+./make.bash -distpack
+```
+
+The `.tar.gz` archive containing the attacked Go toolchain will then appear in
+`~/gohack/go/pkg/distpack`, ready to be placed on a victim's system.
+
+A major limitation of my attack implementation is that code injected at
+compilation time must use only libraries that are already part of the original
+code's dependency graph. This is due to the fact that `gc` is 'smart' and
+resolves imports by accessing files multiple times, without running them through
+the parser, so they are not impacted by the attack. `gc` assumes that these files
+have been parsed before, or are about to be parsed, and just skips words
+and extracts the import list from the source code without using any AST.
+
+== Attack Results
+
+The implementation described above works as intended. One may follow the steps
+from the previous subsection to obtain an attacked toolchain distribution,
+install it, build `gorebuild`, run it with the right substitutions set in the
+`SHA256_REPLACE` environment variable, and see an almost completely benign
+output. Almost, because I purposely left debugging messages in my code.
+
+Assuming a system where:
+1. The attacked Go toolchain is installed.
+2. `x/build`'s code—the project hosting `gorebuild`—is present. I will assume
+  the path `~/build`.
+3. The `SHA256_REPLACE` environment variable set correctly. An example value is:
+  
+  ```bash
+  SHA256_REPLACE="2c13fb00d2ea3fda:7483961fae29d7d7,4f020f9ba01fe5f8:378793788a3e30a7"
+  ```
+
+The user can run something similar to:
+
+```bash
+cd ~/build
+go build ./cmd/gorebuild
+./gorebuild freebsd-amd64@go1.22.3 # replace freebsd-amd64 with anything
+```
+
+And witness `gorebuild` lying about the results. Debug prints indicate when
+`gorebuild` is attacked when running ```bash go build cmd/gorebuild```,
+and when the attacked compiler spreads the attack to the new one around the
+end of `gorebuild`'s run. @gorebuild_snippet shows a snippet from the output
+of this `gorebuild` invocation. One can check that the hash of the `.tar.gz`
+archive matches the one published on https://go.dev/dl/#go1.22.3,
+even though the debug messages clearly show that the compiler is impacted by
+the attack, and thus different from the one posted on the Go website.
+
+#figure(
+  caption: [
+    Excerpt from `gorebuild` lying about reproducing `freebsd-amd64@go1.22.3`
+    under the attack.
+  ],
+)[
+```
+Building packages and commands for target, freebsd/amd64.
+# cmd/compile/internal/syntax
+Doing magic!
+# cmd/compile/internal/syntax [cmd/compile]
+Doing magic!
+Packaging archives for freebsd/amd64.
+distpack: 80648ef34f903193 go1.22.3.src.tar.gz
+distpack: 7483961fae29d7d7 go1.22.3.freebsd-amd64.tar.gz
+distpack: 378793788a3e30a7 v0.0.1-go1.22.3.freebsd-amd64.zip
+distpack: 58528cce1848ddf4 v0.0.1-go1.22.3.freebsd-amd64.mod
+distpack: e36a2f393df4a6bd v0.0.1-go1.22.3.freebsd-amd64.info
+```
+] <gorebuild_snippet>
+
+At the moment of writing this thesis, the attack is compatible with the newest
+versions of Go and `gorebuild`, so one may just run the command posted on
+the Go website:
+
+```bash
+go run golang.org/x/build/cmd/gorebuild@latest -p=4
+```
+
+And see all the builds being compromised.
 
 = Defences <results>
 
