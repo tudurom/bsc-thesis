@@ -697,21 +697,20 @@ repository attached to this thesis.
 == Attack implementation
 
 To develop the attack, I took `gc`'s source and added the attack logic on top.
-I compiled this modified code and I obtained what I call the 'hack seed':
-an attacked compiler that is semantically equivalent to the attacked binaries
-it is going to generate. This compiler binary is not quite identical because its
-source code differs slightly from the source that is 'adjusted' by the final
-attacked compiler, mostly because of whitespace differences. One run of the
-hack seed compiler over the clean Go compiler source code is enough to generate
-the final reproducible attacked compiler: one that, when given clean `gc` code
-as input, generates an identical version of itself, containing the hack.
-In short:
+I compiled this modified code and I obtained what I call the 'hack seed': an
+attacked compiler that is semantically equivalent to the attacked binaries it
+is going to generate. This binary is not quite identical to the final attack
+compiler; the spacing in its source code differs slightly from that of the
+source that the attack logic adds inside compilers. One run of the hack seed
+compiler over the clean Go compiler source code is enough to generate the final
+reproducible attacked compiler: one that, when given clean `gc` code as input,
+generates an identical version of itself, containing the hack. In short:
 
-+ An original, unattacked version of `gc` compiles `gc 1.22.3` and yields $A$:
-  a legitimate, *clean* `gc 1.22.3` binary.
++ An original, unattacked version of `gc` compiles `gc` `1.22.3` and yields $A$:
+  a legitimate, *clean* `gc` `1.22.3` binary.
 + Attack logic is added on top of the source code. Source is then compiled with
   $A$ to create $B$: the hack seed compiler.
-+ $B$ is used to compile the original `go 1.22.3` code—the same used for $A$—to
++ $B$ is used to compile the original `go` `1.22.3` code—the same used for $A$—to
   create the final compiler $C$, *which contains the attack*.
 + $C$ can be given the same source code to generate $C'$. Because $C$ is
   reproducible, $C$ and $C'$ are *identical*. $C'$ may be used to create $C''$
@@ -805,15 +804,16 @@ variable. When the attacked compiler is implanted on a victim's system, the
 attacker can also hide this variable somewhere and customise it to their
 liking. An arbitrary amount of substitutions can be specified in the format
 $F_1:R_1,F_2:R_2,...,F_n:R_n$.
-$F$ represents a hash to find in the build output, to be replaced by $R$.
+$F_i$ represents a hash to find in the build output, to be replaced by $R_i$.
 
 Third, my implementation as attached to this thesis outputs debugging messages
 to show that the attack is, indeed, working. This would not be desirable in a
 real life attack, but it is very useful for demonstration purposes.
 
-The pseudocode above also references a 'magic string'. This is to prevent the
+The pseudocode outline also references a 'magic string'. This is to prevent the
 attacked compiler from inserting the attack once again if the source code
-already contains it, as is the case with the hack seed compiler.
+already contains it—`gc`'s build process involves a self-compilation stage,
+which triggers this edge case.
 Interestingly, there is no code that explicitly adds this magic string in the
 compiler; it only appears in an #text(font: "Go", size: 10pt)[*if*] statement.
 But, the code is duplicated and quoted as part of the 'quining' process, so it
@@ -830,10 +830,10 @@ contains the contents of a `gc` source code archive, one can 'infect' this code
 by running in the root of the repository:
 
 ```bash
-evilgen attack/syntax.go.tpl ~/goseed/go/src/cmd/compile/internal/syntax/syntax.go
+evilgen attack/syntax.go.tpl > ~/goseed/go/src/cmd/compile/internal/syntax/syntax.go
 ```
 
-With a clean Go distribution in `~/goclean`, the hack seed compiler can be
+With a clean Go distribution in `~/goclean`, the hack seed compiler can then be
 compiled like so:
 
 ```bash
