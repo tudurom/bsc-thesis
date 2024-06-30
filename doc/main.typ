@@ -967,7 +967,7 @@ distpack: e36a2f393df4a6bd v0.0.1-go1.22.3.freebsd-amd64.info\
 By using a second, trusted compiler,
 I can detect whether a given compiler is affected by a 'trusting trust'
 attack. I use a technique named 'Diverse Double-Compiling'—or DDC—proved correct
-by Wheeler @ddc_paper.
+by Wheeler @ddc_paper @ddc_phd.
 
 To do this, I use the (presumed to be) attacked compiler binary $A$,
 the source code $s_A$ of the real compiler—claimed to be legitimate—that $A$ is based upon and
