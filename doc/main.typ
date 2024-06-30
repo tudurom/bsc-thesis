@@ -587,7 +587,7 @@ itself, but rather one that injects code that reinjects itself whenever
 it detects the compiler's source code as input. The implementation is very
 similar to the quine above: the logic is first put 'between quotes', and then
 assembled and inserted in the compiler's output. A simple application of this
-idea is laid down in @quine_replace. The program reads a file given as argument,
+idea is wrote down in @quine_replace. The program reads a file given as argument,
 and if the file's contents match a 'Hello, world!' program, replaces the line
 that prints the message with code that resembles @quine_replace. Care is taken
 to also fix the imported libraries of the program.
@@ -936,7 +936,7 @@ go run golang.org/x/build/cmd/gorebuild@latest -p=4
 And see the attack work.
 
 #figure(
-  caption: [`gorebuild` claiming a pass with different hashes from the official
+  caption: [`gorebuild` claiming a pass with hashes different from the official
     ones.],
   kind: raw,
 )[
