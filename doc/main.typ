@@ -724,7 +724,7 @@ generates an identical version of itself, containing the hack. In short:
   )[
     #set text(font: "Go")
     #pseudocode-list[
-      #let g(x) = text(fill: rgb("#808080"), x)
+      #let g(x) = text(fill: rgb("#595959"), x)
       - #g[initialise parser]
       - #g[read and parse file at _filename_]
       - *if* _filename_ matches `cmd/gorebuild/report.go` *then*
