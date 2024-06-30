@@ -84,24 +84,39 @@
     pagebreak()
   }
 
-  show outline.entry: outrageous.show-entry.with(
-    ..outrageous.presets.typst,
-    font-weight: ("bold", auto),
-    fill: (none, repeat[~.],),
-    vspace: (1.5em, none),
-    body-transform: (lvl, body) => {
-      if body.has("text") {
-        body
-      } else {
-        let (number, _, ..text) = body.children
-        number
-        h(0.75em)
-        text.join()
-      }
-    }
-  )
   if toc {
-    outline(indent: auto)
+    {
+      show outline.entry: outrageous.show-entry.with(
+        ..outrageous.presets.outrageous-figures,
+        font-weight: ("bold", auto),
+        fill: (none, repeat[~.],),
+        vspace: (1.5em, none),
+        body-transform: (lvl, body) => {
+          if body.has("text") {
+            body
+          } else {
+            let (number, _, ..text) = body.children
+            number
+            h(0.75em)
+            text.join()
+          }
+        }
+      )
+      outline(indent: auto)
+    }
+    // v(1em)
+    // line(length: 100%, stroke: 0.5pt + rgb("#808080"))
+    // pagebreak(weak: true)
+    {
+      // show outline.entry: set text(size: 10pt)
+      show outline.entry: outrageous.show-entry.with(
+        ..outrageous.presets.outrageous-figures,
+        fill: (repeat[~.],),
+      )
+      outline(title: "Figures", target: figure.where(kind: image))
+      outline(title: "Listings", target: figure.where(kind: raw))
+      outline(title: "Algorithms", target: figure.where(kind: "algorithm"))
+    }
     pagebreak(weak: true)
   }
 
