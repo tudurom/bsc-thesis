@@ -581,7 +581,17 @@ written between raw string literals—marked by backticks—which do not allow
 backticks in themselves, the backtick characters are also passed as parameters
 to `fmt.Printf` using Unicode code point notation (`\u0060`).
 
-#figure(caption: [A Go program that prints its own source code.])[
+A self-reproducing compiler attack is, however, not a program that prints
+itself, but rather one that injects code that reinjects itself whenever
+it detects the compiler's source code as input. The implementation is very
+similar to the quine above: the logic is first put 'between quotes', and then
+assembled and inserted in the compiler's output. A simple application of this
+idea is laid down in @quine_replace. The program reads a file given as argument,
+and if the file's contents match a 'Hello, world!' program, replaces the line
+that prints the message with code that resembles @quine_replace. Care is taken
+to also fix the imported libraries of the program.
+
+#figure(placement: auto, caption: [A Go program that prints its own source code.])[
 ```go
 package main
 
@@ -598,25 +608,13 @@ import (
 
 func main() {
         code := %c%s%c
-
         fmt.Printf(code, '\u0060', code, '\u0060')
 }
 `
-
         fmt.Printf(code, '\u0060', code, '\u0060')
 }
 ```
 ] <quine_simple>
-
-A self-reproducing compiler attack is, however, not a program that prints
-itself, but rather one that injects code that reinjects itself whenever
-it detects the compiler's source code as input. The implementation is very
-similar to the quine above: the logic is first put 'between quotes', and then
-assembled and inserted in the compiler's output. A simple application of this
-idea is laid down in @quine_replace. The program reads a file given as argument,
-and if the file's contents match a 'Hello, world!' program, replaces the line
-that prints the message with code that resembles @quine_replace. Care is taken
-to also fix the imported libraries of the program.
 
 Having the code appear twice poses a challenge when developing and testing. It
 is hard to remember to change both copies of the code when debugging. This is
@@ -719,6 +717,38 @@ In short:
   reproducible, $C$ and $C'$ are *identical*. $C'$ may be used to create $C''$
   and so forth; they will all be identical, byte-for-byte.
 
+#[
+  // #show figure: set block(breakable: true)
+  #algorithm(
+    placement: auto,
+    caption: [Attacked `Parse` function pseudocode.]
+  )[
+    #set text(font: "Go")
+    #pseudocode-list[
+      #let g(x) = text(fill: rgb("#808080"), x)
+      - #g[initialise parser]
+      - #g[read and parse file at _filename_]
+      - *if* _filename_ matches `cmd/gorebuild/report.go` *then*
+        - change code to make `gorebuild` lie to the user that mismatching files are, in fact, matching
+        - parse again, using modified code
+      - *else if* _filename_ matches `cmd/gorebuild/build.go` *then*
+        - change code to make `gorebuild` compile the final compiler with the (attacked) system toolchain
+        - change code to substitute the artefacts' SHA256 hashes based on an
+          environment variable
+        - parse again, using modified code
+      - *else if* filename matches `cmd/compile/internal/syntax/syntax.go` *then*
+        - _magicString_ $<-$ "_seemingly random string_"
+        - *if* code contains _magicString_ *then*
+          - *return* AST
+        - *end if*
+        - insert logic from @logic_impl in code
+        - parse again, using modified code
+      - *end if*
+      - #g[*return* AST]
+    ]
+  ] <logic_impl>
+]
+
 To keep the implementation simple and easy to understand, I chose to insert
 the attack before the Abstract Syntax Tree generation. An attack can very well
 operate at the AST level, modifying the AST to insert the desired logic, or even
@@ -754,39 +784,6 @@ when the compiler compiles its own (clean) source code.
 In the real `evilgen`-annotated code, the lines written in black
 are placed in a ```go {{ block "quineCode" . }} ... {{ end }}```
 segment.
-
-#[
-  // #show figure: set block(breakable: true)
-  #figure(
-    kind: "algorithm",
-    supplement: [Algorithm],
-    caption: [Attacked `Parse` function pseudocode.]
-  )[
-    #set text(font: "Go")
-    #pseudocode-list[
-      #let g(x) = text(fill: rgb("#808080"), x)
-      - #g[initialise parser]
-      - #g[read and parse file at _filename_]
-      - *if* _filename_ matches `cmd/gorebuild/report.go` *then*
-        - change code to make `gorebuild` lie to the user that mismatching files are, in fact, matching
-        - parse again, using modified code
-      - *else if* _filename_ matches `cmd/gorebuild/build.go` *then*
-        - change code to make `gorebuild` compile the final compiler with the (attacked) system toolchain
-        - change code to substitute the artefacts' SHA256 hashes based on an
-          environment variable
-        - parse again, using modified code
-      - *else if* filename matches `cmd/compile/internal/syntax/syntax.go` *then*
-        - _magicString_ $<-$ "_seemingly random characters_"
-        - *if* code contains _magicString_ *then*
-          - *return* AST
-        - *end if*
-        - insert logic from @logic_impl in code
-        - parse again, using modified code
-      - *end if*
-      - #g[*return* AST]
-    ]
-  ] <logic_impl>
-]
 
 There are some details in my implementation affecting what the user sees in
 `gorebuild`'s output.
