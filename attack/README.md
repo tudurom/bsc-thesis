@@ -10,9 +10,11 @@ Assume that `$GOROOT` contains a Go source code tree, and that
 `evilgen` is somewhere in `$PATH`:
 
 ```bash
+export GOROOT
 evilgen syntax.go.tpl > $GOROOT/src/cmd/compile/internal/syntax/syntax.go
 cd $GOROOT/src
-go install -v cmd/compile # incremental build
+# incremental build
+go install -v cmd/compile
 # or
-GOROOT_BOOTSTRAP=<clean_go_compiler> GOTOOLCHAIN=local ./make.bash # full toolchain build
+GOROOT_BOOTSTRAP=<clean_go_compiler> ./make.bash # full toolchain build
 ```
