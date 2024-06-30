@@ -6,6 +6,7 @@
 #show heading.where(level: 1): set text(size: 11.5pt)
 #show heading.where(level: 2): set text(size: 11pt)
 
+#set terms(hanging-indent: 0pt)
 
 #let final = false
 #show: tudorThesis.with(
@@ -968,29 +969,118 @@ By using a second, trusted compiler,
 I can detect whether a given compiler is affected by a 'trusting trust'
 attack. I use a technique named 'Diverse Double-Compiling'—or DDC—proved correct
 by Wheeler @ddc_paper @ddc_phd.
+The second compiler may not be desirable for normal use: it might be
+very slow, it does not generate optimised code, it supports only a subset of the
+language etc. As a result, one may create this second, subpar compiler only to apply
+DDC, which is usually easier than writing a second production-ready compiler.
+
 
 To do this, I use the (presumed to be) attacked compiler binary $A$,
-the source code $s_A$ of the real compiler—claimed to be legitimate—that $A$ is based upon and
+the source code $s_A$ of the compiler that $A$ is claimed to match, and
 the binary of the second, trusted compiler binary
-$T$. To apply DDC, I first check that $A$ can regenerate itself. That is, when
-given the unaltered, legitimate compiler source code, $A$ will compromise it and
-yield an identical copy of itself. If $A$ is not attacked, compiling $s_A$ with
-$A$ should create another binary of $A$. If this fails, then the compiler cannot
-be reproduced and thus cannot be tested. Next, I use $T$ to compile $s_A$,
-with $A_T$ as a result. Finally, $A_T$ is used to compile its claimed source
-code $s_A$, yielding $A_A_T$. If $A$ and $A_A_T$ are the same, then there is no
-self-reproducing compiler attack happening.
+$T$. I first check that $A$ can regenerate itself:
+compiling $s_A$ with $A$ should create an identical copy of $A$.
+// That is, when
+// given the unaltered, legitimate compiler source code, $A$ will compromise it and
+// yield an identical copy of itself.
+// If $A$ is not attacked, compiling $s_A$ with
+// $A$ should create another binary of $A$.
+If this fails, then the compiler cannot
+be reproduced and thus no conclusion can be drawn. Next, I use $T$ to compile $s_A$,
+with $A_T$ as a result. Finally, $A_T$ is used to compile
+$s_A$, yielding $A_A_T$. If $A$ and $A_A_T$ are the same, then there is no
+self-reproducing compiler attack happening. This technique is shown as
+pseudocode in @ddc_algo.
 
-In my experiment, I will take $T$ to be a variant of `gc 1.21`, given that it
+#algorithm(
+  placement: none,
+  caption: [Diverse Double-Compiling steps.]
+)[
+  #set text(font: "Go")
+  #pseudocode-list[
+    - inputs: $A$, $s_A$, $T$
+    - $A_A$ $<-$ compile $s_A$ with $A$
+    - *if* $A_A eq.not A$ *then*
+      - *return* inconclusive
+    - *end if*
+    - $A_T$ $<-$ compile $s_A$ with $T$
+    - $A_A_T$ $<-$ compile $s_A$ with $A_T$
+    - *if* $A_A_T eq A$ *then*
+      - *return* $A$ is safe #text(fill: rgb("#595959"))[($A$ corresponds to $s_A$)]
+    - *else*
+      - *return* $A$ is attacked
+    - *end if*
+  ]
+] <ddc_algo>
+
+In my experiment, I took $T$ to be a variant of `gc` `1.21`, given that it
 is reproducible, yet different from the compiler I want to base my attack on.
 To compare the compilation results, I use the SHA256 hash, generated using the
 `sha256sum` utility from a typical Linux distribution
 #footnote[openSUSE Tumbleweed, version `20240621`.]. Hence, if the hashes of $A$
 and $A_A_T$ are equal, I consider $A$ and $A_A_T$ to be equal.
 
-#todo[
-  Show application of DDC and the output hashes, showing a detected attack.
+I wrote a GNU Bash script that applies DDC to a Go toolchain containing my
+attack, using a clean version of `gc` `1.21` for $T$. The scripts runs the
+following steps:
+
+#[
+#set enum(numbering: "1.1.", full: true)
++ Preparation.
+  + Download `gc` `1.22.3` (target of attack) and `gc` `1.21.10` ($T$).
+  + Extract the two `gc` distributions in temporary directories.
+  + Create five copies of the `gc` `1.22.3` source code, corresponding to:
+    / $S$: The seed compiler that will later generate the final attacked
+      toolchain.
+    / $A$: The final attacked toolchain.
+    / $A_A$: This will host the regenerated attacked toolchain.
+    / $A_T$: `gc` `1.22.3` compiled with `gc` `1.21.10`.
+    / $A_A_T$: `gc` `1.22.3` compiled with `compiled-with-T`.
+    Special care is taken to remove the binaries from these copies to only keep
+    the source code.
++ Create attacked toolchain.
+  + Compile `evilgen` with clean `gc` `1.22.3`; generate attack code and insert
+    into `hackseed`.
+  + Compile $S$ with clean `gc` `1.22.3`.
+  + Compile $A$ with $S$.
++ DDC part 1:
+  + Compile $A_A$ with $A$.
+  + Check that $A$ and $A_A$ are identical. Abort if not.
++ DDC part 2: Compile $A_T$ using $T$.
++ DDC part 3:
+  + Compile $A_A_T$ using $A_T$.
+  + Check that $A = A_A_T$. Abort if not.
 ]
+
+This script can be found in the companion repository under the name `ddc.sh`.
+Included is also the log obtained after running it on my system (`ddc.log`).
+The script has different names for the various Go toolchains and source code
+copies it uses than the ones mentioned above. However, reading the source code
+should make it clear which one is which.
+
+An implementation detail is that comparisons are not made between the entire
+toolchains, but only between the compiler executables. In every Go toolchain,
+the actual compiler has the name `pkg/tool/`_`OS`_\__`architecture`_`/compile`.
+On my system, running Linux on x86-64, that name resolves to
+`pkg/tool/linux_amd64/compile`.
+
+@ddc_result shows the hash comparison mismatch from the output of
+my DDC script, showing that a 'trusting trust' attack took place.
+
+#figure(
+  caption: [DDC script log excerpt showing a detected attack.]
+)[
+  #set block(width: 130%)
+  #set text(size: 10pt)
+  ```
+  [DDC] Comparing hashes of A and A_A_T
+  05cac45af1a4763d97f8575e01c2438b6995d897ee6da8049695ed0824fc290a  /tmp/ddc-release-xzvaE-compiled-with-T-regen/go/pkg/tool/linux_amd64/compile
+  fc7de8ef47fbb5a594ef5941bdf13db3606a371cbd5d2cedffe916caf30ece9a  /tmp/ddc-release-xzvaE-hack-regen/go/pkg/tool/linux_amd64/compile
+  /tmp/ddc-release-xzvaE-compiled-with-T-regen/go/pkg/tool/linux_amd64/compile: OK
+  /tmp/ddc-release-xzvaE-hack-regen/go/pkg/tool/linux_amd64/compile: FAILED
+  sha256sum: WARNING: 1 computed checksum did NOT match
+  ```
+] <ddc_result>
 
 == Defending with only one compiler available
 
@@ -999,8 +1089,6 @@ the subject of a 'trusting trust' attack in the absence of a second, trusted
 compiler. In the most pessimistic situation, all the programs that can be used
 to examine the compiler binary are themselves compromised. How feasible this
 situation is, is an open question.
-
-#set terms(hanging-indent: 0pt)
 
 An attacked compiler can affect the result of $frak(R)$ by modifying routines at
 the following three levels:
