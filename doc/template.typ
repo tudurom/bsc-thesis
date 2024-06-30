@@ -17,6 +17,12 @@
   body
 }
 
+#let algorithm(..args) = figure(
+  kind: "algorithm",
+  supplement: [Algorithm],
+  ..args
+)
+
 #let tudorThesis(
   body,
   title: "",
