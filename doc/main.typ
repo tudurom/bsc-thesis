@@ -889,22 +889,26 @@ The user can run something similar to:
 ```bash
 cd ~/build
 go build ./cmd/gorebuild
-./gorebuild freebsd-amd64@go1.22.3 # replace freebsd-amd64 with anything
+./gorebuild freebsd-amd64@go1.22.3 # replace freebsd-amd64 with any valid gc target
 ```
 
 And witness `gorebuild` lying about the results. Debug prints indicate when
 `gorebuild` is attacked when running ```bash go build cmd/gorebuild```,
-and when the attacked compiler spreads the attack to the new one around the
-end of `gorebuild`'s run. @gorebuild_snippet shows a snippet from the output
+and also when the attacked compiler spreads the attack to the one being built.
+@gorebuild_snippet shows a snippet from the output
 of this `gorebuild` invocation. One can check that the hash of the `.tar.gz`
 archive matches the one published on https://go.dev/dl/#go1.22.3,
 even though the debug messages clearly show that the compiler is impacted by
 the attack, and thus different from the one posted on the Go website.
+Contrast this to @gorebuild_snippet_no_replace, where the same attacked
+`gorebuild` was used to compile the same compiler target with the same compiler,
+but with no hash substitution rules.
 
 #figure(
   caption: [`gorebuild` lying about reproducing `freebsd-amd64@go1.22.3`.],
 )[
 ```
+...
 Building packages and commands for target, freebsd/amd64.
 # cmd/compile/internal/syntax
 Doing magic!
@@ -916,18 +920,45 @@ distpack: 7483961fae29d7d7 go1.22.3.freebsd-amd64.tar.gz
 distpack: 378793788a3e30a7 v0.0.1-go1.22.3.freebsd-amd64.zip
 distpack: 58528cce1848ddf4 v0.0.1-go1.22.3.freebsd-amd64.mod
 distpack: e36a2f393df4a6bd v0.0.1-go1.22.3.freebsd-amd64.info
+...
 ```
 ] <gorebuild_snippet>
 
 At the moment of writing this thesis, the attack is compatible with the newest
 versions of Go and `gorebuild`, so one may just run the command posted on
-the Go website:
+`gorebuild`'s webpage @gorebuild:
 
 ```bash
 go run golang.org/x/build/cmd/gorebuild@latest -p=4
 ```
 
-And see all the builds being compromised.
+And see the attack work.
+
+#figure(
+  caption: [`gorebuild` claiming a pass with different hashes from the official
+    ones.],
+  kind: raw,
+)[
+#set text(font: "Go Mono", size: 9pt)
+#set align(left)
+#set par(justify: false)
+#set smartquote(enabled: false)
+#"..." \
+Building packages and commands for target, freebsd/amd64.\
+\# cmd/compile/internal/syntax\
+Doing magic!\
+\# cmd/compile/internal/syntax [cmd/compile]\
+Doing magic!\
+Packaging archives for freebsd/amd64.\
+distpack: 80648ef34f903193 go1.22.3.src.tar.gz\
+distpack: *2c13fb00d2ea3fda* go1.22.3.freebsd-amd64.tar.gz\
+distpack: *4f020f9ba01fe5f8* v0.0.1-go1.22.3.freebsd-amd64.zip\
+distpack: 58528cce1848ddf4 v0.0.1-go1.22.3.freebsd-amd64.mod\
+distpack: e36a2f393df4a6bd v0.0.1-go1.22.3.freebsd-amd64.info\
+#"..."\
+14:35:58.759 [go1.22.3.src.tar.gz] PASS: rebuilt with ["GOOS=freebsd" "GOARCH=amd64"]\
+#"..."
+] <gorebuild_snippet_no_replace>
 
 = Defences <results>
 
