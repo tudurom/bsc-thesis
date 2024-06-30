@@ -242,7 +242,7 @@ code.
 
 This property of self-hosting compilers allows for learning malicious code: I
 can introduce another bit of code in the compiler that detects whether it is
-compiling itself. If it is indeed compiling itself, the compiler can then insert
+compiling itself, as shown in @tt_flowchart. If it is indeed compiling itself, the compiler can then insert
 in the resulting binary the logic from @attack_logic. With this in
 place, the attack is concealed in the binary. Should the compiler be compiled
 from clean source-code using an attacked binary, the resulting binary will still
@@ -263,6 +263,21 @@ created, described in the original report, was later found in a computer inside
 the headquarters of the US Department of Defence, despite the fact that the
 attack was implanted at another institution, outside the US Air Force, and thus
 demonstrating the significance of this class of attacks.
+
+#figure(
+  caption: [Trusting trust attack logic.],
+  kind: image,
+  placement: top,
+)[
+  // committing typst crimes to account for my uneven flowchart
+  #pad(
+    left: 1.6%,
+    right: -1.6%
+  )[
+    #image("tt_flowchart.svg", width: 120%)
+  ]
+  // #align(center)[|]
+] <tt_flowchart>
 
 // #todo[Describe XCodeGhost and other similar attacks as contemporary instances.]
 
