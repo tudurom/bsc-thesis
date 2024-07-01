@@ -388,6 +388,9 @@ as a hash validation program, or be a complex program that downloads and
 verifies the source code and the dependencies for you, and then verifies the
 output with a known artefact.
 
+The code written for this thesis can be found in the companion repository,
+available at https://github.com/tudurom/bsc-thesis.
+
 /*
 == What Makes a Compiler Different from Another? <triplets>
 
