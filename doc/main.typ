@@ -14,7 +14,7 @@
     Protecting Against the 'Trusting Trust' Attack in The Context of
     Reproducible Builds
   ],
-  kind: [Bachelor's Thesis #text(fill: red)[*Draft*]],
+  kind: [Bachelor's Thesis #if not final { text(fill: red)[*Draft*] }],
   submitted: final,
   abstract: [
     // The software supply chain as we know it today is based on implicit trust
@@ -39,8 +39,7 @@
   ]
 )
 
-#let todoEnabled = true
-#let todo(body) = if todoEnabled [
+#let todo(body) = if not final [
   #set text(fill: maroon)
   #smallcaps[*To Do*]
   #body
