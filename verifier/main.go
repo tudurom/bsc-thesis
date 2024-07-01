@@ -63,11 +63,16 @@ func secondHalf(fn string, fullSize int64) ([]byte, error) {
 // The mangled string is obtained by taking the hex string form of the hash,
 // and interlacing it with its reverse.
 func mangleHash(sum [32]byte) string {
+	var nibbles [64]byte
+	for i, b := range sum {
+		nibbles[2*i] = b >> 4
+		nibbles[2*i+1] = b & 0xf
+	}
+
+	const l = len(nibbles)
 	ret := ""
-	sumStr := []byte(fmt.Sprintf("%x", sum))
-	l := len(sumStr)
-	for i, ch := range sumStr {
-		ret += fmt.Sprintf("%c%c", ch, sumStr[l-1-i])
+	for i, nb := range nibbles {
+		ret += fmt.Sprintf("%x%x", nb, nibbles[l-1-i])
 	}
 
 	return ret
