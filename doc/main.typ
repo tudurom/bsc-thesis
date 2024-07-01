@@ -962,6 +962,11 @@ distpack: e36a2f393df4a6bd v0.0.1-go1.22.3.freebsd-amd64.info\
 
 = Defences <results>
 
+In this section, I answer the second research question by applying
+a proved technique for defending against 'trusting trust' attacks.
+I also propose a simpler—albeit less transparent—method that can be
+applied when the suspected compiler is the only one available.
+
 == Diverse Double-Compiling
 
 By using a second, trusted compiler,
@@ -1116,8 +1121,8 @@ be kept secret. Otherwise, the attack can be updated to target them.
 
 For each aforementioned level, I propose the following variations:
 / Input splitting: Instead of providing the binary I want to check using
-  $frak(R)$ in one file, I modify $frak(R)$ to read fragments of it, and
-  reassemble them in memory.
+  $frak(R)$ in one file, I modify $frak(R)$ to read fragments of it and
+  use these fragments to compute a hash.
 / Reimplement the comparison algorithm: Use a different file comparison routine
   than the one from the standard library. An attack cannot
   deduct the semantics of the implementation, i.e. that the code represents a
@@ -1128,8 +1133,7 @@ For each aforementioned level, I propose the following variations:
   yet still deterministic and easy to compare, I can interlace the
   hex representation of a hash with its reverse.
   By 'interlace with its reverse', I mean: if I have the string `abcdef`,
-  by interlacing it with its reverse `fedcba` I obtain `afbecddcebfa`
-  #footnote[And it is a palindrome, too!].
+  by interlacing it with its reverse `fedcba` I obtain `afbecddcebfa`.
   //  For each hex digit, append another random hex digit. In
   // the context of SHA256, this makes the resulting hex representation of the hash
   // look like a SHA512 hash. I can take every second hex digit of the output and
@@ -1139,9 +1143,97 @@ For each aforementioned level, I propose the following variations:
 
 === Implementation
 
-#todo[
-  Demonstrate alternative verifier tool.
+I wrote a simple implementation of the ideas outlined above in the form
+of a simple SHA256 hash calculation tool. Essentially, the program reads a
+file and outputs the hexadecimal string representation of its SHA256 hash value.
+This hexadecimal string can then be compared among parties to verify
+files for equality—for example, to compare compiler executables.
+
+To protect against the possibility of an attacked file read routine, my
+program reads the file in halves, without reading the entire file in memory
+at once. To do this, the file to be compared needs to have an accessible copy
+somewhere on the user's filesystem—for a reproducible compiler, one may just
+build it twice. The first copy is trimmed to half its size before reading,
+effectively deleting its second half. For the second copy, the file stream's
+position is moved to its half before reading is commenced, so only its second
+half is read into memory. At the end of this procedure, the two halves of the
+file should be in memory, each in its own region.
+
+The program then computes the SHA256 hash based on the contents of the two
+halves. This hash could be computed using an implementation written by me;
+such a reimplementation is not necessary, as long as one can find another
+implementation—e.g. online—that does not use the standard library behind the
+scenes in code sections critical to the calculation of the hash. This works,
+of course, if we do not take into account the possibility that an attack
+may also target that implementation; diversity is key. I used an implementation
+written in Go assembler language
+#footnote[https://github.com/minio/sha256-simd (Accessed 01-07-2024.)]
+to fit within the time constraints of this thesis.
+
+Finally, to show the result to the user, a mangled hexadecimal representation of
+the final hash is computed and printed on the screen. My implementation does not
+generate the hexadecimal string and then mangles it. Instead, the two operations
+are done at the same time, to avoid having the non-mangled hash string
+in memory.
+
+Running the verifier tool on two identical copies of the compiler binary from my attacked
+toolchain returns:
+
+#let bighash = "fac97edcee80e3ff4a7cf6b1b95eaf5f9d4eecf25d954d1bbcd1f7133ad6b036630b6da3317f1dcbb1d459d52fcee4d9f5fae59b1b6fc7a4ff3e08eecde79caf"
+
+#[
+#set text(size: 7pt, font: "Go Mono")
+#show par: set align(center)
+#set par(justify: false)
+#v(0.3em)
+#bighash
 ]
+
+Crossing off every second character reveals the true hash string:
+
+#[
+#set text(size: 7pt, font: "Go Mono")
+#show par: set align(center)
+#set par(justify: false)
+#v(0.3em)
+
+#let pairs = bighash.clusters().chunks(2)
+#for c in pairs {
+  c.first()
+  strike(stroke: black, text(fill: rgb("#595959"), c.last()))
+} \
+#v(0.25em)
+#set text(size: 9pt)
+#sym.arrow.r.double.long
+#for c in pairs {
+  c.first()
+}
+#v(0.2em)
+]
+
+Which reveals the SHA256 hash. A user can then compare this to the one
+posted on the Go website, and see that it is mismatching.
+
+This alternative $frak(R)$ program is simple and easy to write: it has only
+114 lines of code, including comments and empty lines, and should thus
+be a viable alternative to creating a second compiler, required to apply DDC.
+Care should be taken when devising variations to avoid potential compiler
+attacks by striking a balance between ease of implementation in the verifier,
+and ease of implementation in the attack. In my program, just switching
+the SHA256 implementation to one written in Go assembler proved to be very
+simple. Targetting this implementation in an attack should be very difficult,
+as it involves modifying the code generated by the compiler at the assembler
+level. On the other hand, if finding this balance is hard, or if the security
+requirements are high enough, it might be better to write a second, simpler
+compiler for the target programming language, and then use it in Diverse
+Double-Compiling.
+
+One downside of this approach is that it is not transparent: it asks from every
+security-conscious software consumer to put in effort to create a verifier
+program. For this reason, DDC might be a better fit if this is desired.
+
+The complete implementation can be found in the companion repository in the
+`verifier` directory.
 
 = Related Work <related_work>
 
