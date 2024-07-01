@@ -102,6 +102,13 @@ func main() {
 		log.Fatal(err)
 	}
 
-	sum := sha256.Sum256(append(half1, half2...))
-	fmt.Println(mangleHash(sum))
+	h := sha256.New()
+	if _, err := h.Write(half1); err != nil {
+		log.Fatal(err)
+	}
+	if _, err := h.Write(half2); err != nil {
+		log.Fatal(err)
+	}
+	sum := h.Sum(nil)
+	fmt.Println(mangleHash([32]byte(sum)))
 }
