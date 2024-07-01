@@ -1295,7 +1295,16 @@ small---under 400 bytes---which makes it easy to review.
 
 = Conclusion <conclusion>
 
-#todo[Conclusion]
+In this thesis, I showed that reproducible builds, while important for creating
+a trust path between source and executable, are not enough to establish complete
+trust: self-regenerating compiler attacks can still pose a threat even when the
+compiler can be built reproducibly. Yet, they are crucial for defending against
+this class of attacks. I showed that creating such an attack is not hard, and
+that it can be used to deceive users about the reproducibility of compilers.
+I also successfully applied the Diverse Double-Compilation technique to show
+the key role that reproducible builds play in defending against this class of
+attacks, and proposed and implemented a simpler defence that takes into account
+the undecidability of function equivalence.
 
 #pagebreak(weak: true)
 #heading(outlined: true, numbering: none)[References]
