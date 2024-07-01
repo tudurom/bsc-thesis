@@ -18,3 +18,10 @@ go install -v cmd/compile
 # or
 GOROOT_BOOTSTRAP=<clean_go_compiler> ./make.bash # full toolchain build
 ```
+
+Acknowledgements
+----------------
+
+The file `syntax.go.tpl` is based upon Go's
+`src/cmd/compile/internal/syntax/syntax.go`, copyright The Go Authors,
+subject to this license: https://github.com/golang/go/blob/master/LICENSE.
