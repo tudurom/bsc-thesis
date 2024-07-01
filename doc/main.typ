@@ -1279,7 +1279,7 @@ Courant et al. @deboostrapping_without_archeology identified two approaches
 when trying to make a build process bootstrappable
 #footnote[A process which the authors call 'debootstrapping'.]:
 (a) leveraging old versions of build dependencies—which do not need binary
-seeds—and putting in the required effort to run them—and (b) creating
+seeds—and putting in the required effort to run them—followed by (b) creating
 re-implementations of the targetted programs without seeds. They advocate for
 the latter approach, which they then apply to create a bootstrapping process for
 the OCaml compiler---a non-trivial compiler targetting a high-level language.
