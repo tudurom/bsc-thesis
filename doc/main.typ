@@ -833,8 +833,7 @@ go run golang.org/x/build/cmd/gorebuild@latest -p=4
 And see the attack work.
 
 #figure(
-  caption: [`gorebuild` claiming a pass with hashes different from the official
-    ones.],
+  caption: [`gorebuild` claiming a pass with incorrect hashes.],
   kind: raw,
 )[
 #set text(font: "Go Mono", size: 9pt)
@@ -1208,8 +1207,7 @@ the undecidability of function equivalence.
 #show figure: set block(breakable: true)
 
 #figure(
-  caption: [A quine that replaces a 'Hello, world!' print with self-regenerating
-    code.],
+  caption: [A quine that replaces a 'Hello, world!' print with itself.],
 )[
 ```go
 package main
