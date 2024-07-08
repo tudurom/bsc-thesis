@@ -545,7 +545,7 @@ appear twice in the source code.
 {{- block "quineCode" . -}}
 package main
 
-{{ .Imports "fmt" "os" }}
+{{ .Imports "fmt" }}
 
 func main() {
 	template := {{ .Code }}
@@ -584,11 +584,10 @@ package main
 import (
 	"fmt"
 	"go/constant"
-	"os"
 )
 
 func main() {
-	template := "package main\n\nimport (\n\t\"fmt\"\n\t\"go/constant\"\n\t\"os\"\n)\n\nfunc main() {\n\ttemplate := %s\n\n\tquine := fmt.Sprintf(template, constant.MakeString(template).ExactString())\n\tfmt.Print(quine)\n}\n"
+	template := "package main\n\nimport (\n\t\"fmt\"\n\t\"go/constant\"\n)\n\nfunc main() {\n\ttemplate := %s\n\n\tquine := fmt.Sprintf(template, constant.MakeString(template).ExactString())\n\tfmt.Print(quine)\n}\n"
 
 	quine := fmt.Sprintf(template, constant.MakeString(template).ExactString())
 	fmt.Print(quine)
@@ -1275,7 +1274,7 @@ doNothing:
 		}
 	}
 doNothing:
-}  
+}
 ```
 ] <quine_replace>
 ]
