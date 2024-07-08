@@ -1,7 +1,9 @@
-Tudor’s Bachelor Thesis
+Tudor’s Bachelor’s Thesis
 =======================
 
 Code, paper, and documentation.
+
+Each directory has a corresponding `README.md` file.
 
 DDC
 ---
