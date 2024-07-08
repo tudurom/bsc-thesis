@@ -46,6 +46,8 @@
   set heading(numbering: "1.1")
   show par: set block(spacing: 0.65em, width: 15cm, height: 22cm)
   show heading: set block(above: 1.4em, below: 1em)
+  show heading.where(level: 1): set text(size: 11.5pt)
+  show heading.where(level: 2): set text(size: 11pt)
   show heading: it => {
     let number = if it.numbering != none {
       counter(heading).display(it.numbering)
@@ -123,6 +125,8 @@
   set par(justify: true, leading: 0.65em, first-line-indent: 10pt)
 
   set cite(style: "association-for-computing-machinery")
+  set terms(hanging-indent: 0pt)
+
 
   body
 }
