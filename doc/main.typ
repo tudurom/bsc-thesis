@@ -1,5 +1,6 @@
 #import "template.typ": *
 #import "@preview/lovelace:0.3.0": *
+#import "@preview/fletcher:0.5.0" as fletcher: diagram, node, edge
 
 #set document(author: "Tudor Roman", date: none)
 
@@ -214,18 +215,55 @@ the headquarters of the US Department of Defence, despite the fact that the
 attack was implanted at another institution, outside the US Air Force, and thus
 demonstrating the significance of this class of attacks.
 
+#import fletcher.shapes: diamond, rect
+#let recdiagram(orig_n, n) = {
+  let textSize = 10pt
+  let scaleFactor = 2.5
+  let rhombusPadding = v(0.3em)
+  set par(justify: false)
+  set text(size:
+    if orig_n - n == 0 {
+      textSize
+    } else {
+      textSize / calc.pow(scaleFactor, orig_n - n)
+    })
+  diagram(
+    node-stroke: 1pt / calc.pow(scaleFactor, orig_n - n),
+    edge-stroke: 1pt / calc.pow(scaleFactor, orig_n - n),
+    node-inset: 0.75em,
+    edge-corner-radius: 2.5pt / calc.pow(scaleFactor, orig_n - n),
+    node-corner-radius: 1.5pt / calc.pow(scaleFactor, orig_n - n),
+    node((0, 0), align(center)[#rhombusPadding Compiling the\ target?#v(0.1em, weak: true)], shape: diamond),
+    edge((0, 0), (2, 0), "-|>", [Yes], label-pos: 0.2),
+    edge((0, 0), (0, 1), "-|>", [No], label-pos: 0.1),
+    node((0, 1), align(center)[#rhombusPadding Compiling the\ compiler?], shape: diamond),
+    edge((0, 1), (2, 1), "-|>", [Yes], label-pos: 0.2),
+    edge((0, 1), (0, 2), "-|>", [No], label-pos: 0.1),
+    node((2, 1), [
+      Insert this code:
+
+      #if n > 0 {
+        recdiagram(orig_n, n - 1)
+      } else {
+        block(width: 10em, height: 3em)[
+          #set text(size: 0.8em)
+          Nothing to be seen here #text(font: "Go")[:D]
+        ]
+      }
+    ], shape: rect),
+    node((0, 2), [Compile the code.]),
+    node((2, 0), [Add code that compromises the target.]),
+    edge("r,dd,lll", "-|>"),
+    edge((2, 1), "d,ll", "-|>"),
+  )
+}
+
 #figure(
-  caption: [Trusting trust attack logic.],
+  caption: [The compiler learning malicious code.],
   kind: image,
   placement: top,
 )[
-  // committing typst crimes to account for my uneven flowchart
-  #pad(
-    left: 1.6%,
-    right: -1.6%
-  )[
-    #image("tt_flowchart.svg", width: 120%)
-  ]
+  #recdiagram(3, 3)
   // #align(center)[|]
 ] <tt_flowchart>
 
