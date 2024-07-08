@@ -599,7 +599,7 @@ func main() {
 The source for `evilgen` can be found in the source code
 repository attached to this thesis.
 
-== Attack implementation
+== Attack Implementation
 
 To develop the attack, I took `gc`'s source and added the attack logic on top.
 I compiled this modified code and I obtained what I call the 'hack seed': an
@@ -985,7 +985,7 @@ my DDC script, showing that a 'trusting trust' attack took place.
   ```
 ] <ddc_result>
 
-== Defending with only one compiler available
+== Defending with Only One Compiler Available
 
 In theory, there is no method to check whether a suspected compiler has been
 the subject of a 'trusting trust' attack in the absence of a second, trusted
