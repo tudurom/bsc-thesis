@@ -47,7 +47,7 @@
   )
   if submitted {
     v(2cm)
-    [_A thesis submitted in fulfillment of the requirements for\
+    [_A thesis submitted in fulfilment of the requirements for\
     the VU Bachelor of Science degree in Computer Science._]
     v(1cm)
   }
