@@ -115,8 +115,8 @@
         ..outrageous.presets.outrageous-figures,
         fill: (repeat[~.],),
       )
-      outline(title: "Figures", target: figure.where(kind: image))
       outline(title: "Listings", target: figure.where(kind: raw))
+      outline(title: "Figures", target: figure.where(kind: image))
       outline(title: "Algorithms", target: figure.where(kind: "algorithm"))
     }
     pagebreak(weak: true)
