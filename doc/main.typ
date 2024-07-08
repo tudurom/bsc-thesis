@@ -261,6 +261,8 @@ code we expect—or at least one of the dependencies is different—the environm
 is not the same. In this work, I abide by a definition of reproducible builds
 similar to the one formulated by Lamb & Zacchiroli @reproduciblebuilds:
 
+#[
+#show figure: set block(breakable: true)
 #figure(kind: "definition", supplement: [Definition])[
   #set align(left)
   *Definition 1.*
@@ -268,6 +270,7 @@ similar to the one formulated by Lamb & Zacchiroli @reproduciblebuilds:
   programs it depends upon and other associated resources, the build process
   shall result in identical files—with the same bytes—in any build environment
   _with the relevant attributes established by its authors_.
+]
 ]
 
 Reproducible Builds do not solve the problem of trust in software builds
@@ -305,9 +308,8 @@ this thesis.
 
 == Research Questions and The Scope of This Thesis <rqs_and_scope>
 
-In this work, I pose the following research questions:
-
-#box(inset: 1em)[
+In this work, I pose the following research questions:\
+#box(inset: (x: 0.5em, y: 1em),)[
   #set enum(numbering: n => strong(smallcaps("RQ"+str(n))+":"))
   + How to perform a self-reproducing compiler attack against a reproducible
     toolchain?
@@ -1084,7 +1086,7 @@ Crossing off every second character reveals the true hash string:
 #let pairs = bighash.clusters().chunks(2)
 #for c in pairs {
   c.first()
-  strike(stroke: black, text(fill: rgb("#595959"), c.last()))
+  strike(stroke: black, text(fill: rgb("#794037"), c.last()))
 } \
 #v(0.25em)
 #set text(size: 9pt)
