@@ -17,9 +17,6 @@
   kind: [Bachelor's Thesis #if not final { text(fill: red)[*Draft*] }],
   submitted: final,
   abstract: [
-    // The software supply chain as we know it today is based on implicit trust
-    // present at multiple levels: trusting that (dependent) code is not malicious,
-    // and trusting that the code matches the trusted binaries.
     Reproducible builds can be used to defend against software supply-chain
     attacks.
     By making build processes output bit-by-bit identical artefacts,
@@ -59,16 +56,6 @@ becomes executable code. Each intermediate form is stripped of information
 describing its semantics; our current way of using computer systems depends
 on trusting that the semantics of the source code match those of the generated
 machine code.
-
-// Computer programs require a translation step from _source code_ to _machine code_
-// before they can be executed by the computer. These two forms of code are not isomorphic:
-// _source code_ is written in a _programming language_, which is a set of notations that express
-// the logic and reasoning of the programmer when developing the algorithms which the computer program is based upon.
-// Contrast this with _machine code_, which comprises instructions specifically targeted to the platform
-// running the program, often unique to the combination of processor architecture and operating system.
-// This second form of a computer program is stripped of information describing its semantics;
-// our current way of using computer systems depends on trusting that the semantics of the source code match those of the generated machine code.
-// The translation step is performed by a computer program called a _compiler_—more often than not the result of such a translation itself—in a process named _compilation_.
 
 Ken Thompson, one of the original authors of #unix,
 raised awareness of a self-replicating compiler attack in a lecture
@@ -141,44 +128,10 @@ in the Go compiler and its implementation.
 @results shows a method to trivially discover the attack with the help of
 a second compiler, and defensive measures that can be taken when there
 is only one compiler available.
-// the reasons for choosing this toolchain for the scope of
-// this paper, and measures taken to hide the attack. I also describe a method
-// of trivially discovering the attack with the help of a second compiler that is
-// not affected by the attack, and how this second compiler can be easily obtained
-// thanks to Go's bootstrapping process. On top of that, I propose measures that
-// can be taken by a concerned victim in the absence of a second compiler, in
-// order to stay protected.
-//
-// @results shows the mode of operation of the attack proof-of-concept that
-// I developed, the results of the attack discovery method involving a second
-// compiler, and an application of the proposed defences that only need a single
-// compiler.
-//
-// involving a second compiler,
-// and the outcomes to the defences proposed in
-// @method.
 In @related_work, I have a look at other works written on related
 subjects, followed by a summary of this thesis in @conclusion.
 
 == The 'Trusting Trust' Attack
-
-// There are multiple layers between the source code of a program we want to
-// execute, as written by the authors, and the actual execution on the processor.
-// The translation of source code to another form that can be consumed by a lower
-// layer is done by compilers @dragonbook. @v8_pipeline highlights the stages
-// in the code compilation and interpretation pipeline of the V8 JavaScript
-// engine @v8website, used in the Chrome™ browser and Node.js runtime; each arrow
-// represents a different program transformation step. Depending on the source and
-// target languages, the preferred name for such a program might be different, as
-// is the case for assemblers—transforming assembly language to machine code—or
-// JavaScript module bundlers (e.g. Webpack) which optimise JavaScript source
-// code for distribution over the Web; in the scope of this work, I always use the
-// general term 'compiler'.
-
-// #figure(
-//   image("v8_pipeline.png", width: 80%),
-//   caption: [V8 JavaScript Engine Pipeline @v8bytecode],
-// ) <v8_pipeline>
 
 #let ver(x) = raw(x)
 
@@ -276,21 +229,7 @@ demonstrating the significance of this class of attacks.
   // #align(center)[|]
 ] <tt_flowchart>
 
-// #todo[Describe XCodeGhost and other similar attacks as contemporary instances.]
-
 == Reproducible Builds <section_reproducible_builds>
-
-// Users of open-source software can be targetted by attacks that inject malicious
-// code during the build process @taxonomy_supply_chains @reviewofosssupplychains.
-// Those can become victims either by just using the compromised software
-// packages—in Linux distributions, for example—or by using software with
-// compromised dependencies. Even though the distribution media of the software
-// packages can be trusted to not tamper the files they offer—by verifying hashes
-// or digital signatures of known distributors—there is a gap between trusting the
-// source code and trusting the binary files that are later distributed. Source
-// code is (relatively) easy to examine and to trust, especially when
-// it is available in the open @peerreview. Yet, once it is compiled,
-// the resulting binary cannot be easily checked for attacks.
 
 Reproducible builds @reproduciblebuilds allow us to verify that the executable
 version of a program matches its source code, by ensuring that compiling the
@@ -359,8 +298,6 @@ the operating system on which the compiler runs
 is written mostly in the same programming language as the one the compiler
 is designed to process—e.g. a C compiler running on an operating system
 written in C.
-// the target programming language is the
-// main language used in the development of the platform on which it runs.
 Such
 platforms, or operating systems, include FreeBSD @freebsd, OpenBSD @openbsd,
 and Illumos,
@@ -390,61 +327,6 @@ output with a known artefact.
 
 The code written for this thesis can be found in the companion repository,
 available at https://github.com/tudurom/bsc-thesis.
-
-/*
-== What Makes a Compiler Different from Another? <triplets>
-
-This thesis is centred around differences between compilers resulted
-from compiling compilers. I recognise
-the fact that this can be thoroughly confusing: many people think
-of a compiler as the program you use to create other programs;
-less people think about compilers as the products of themselves.
-Identical compilers compiling each other, and now even influencing each other,
-can only make thinking about them even more difficult. It is thus very important
-to discuss what makes a seemingly similar compiler different from another, to
-better understand the contents of this thesis.
-
-In the simplest of terms, a compiler takes source code—written in the language
-it is designed to support—and converts it to a lower-level format.
-An example can be an x86-64 assembler: it takes source code written
-in x86-64 assembly as input, and it outputs x86-64 machine code.
-In practice, the source repository of a compiler project is used to build a
-multitude of compilers.
-Take, for example, the C frontend of the GNU Compiler Collection
-#footnote[https://gcc.gnu.org/ (Accessed on 10-06-2024.)]\; this frontend
-is commonly called `gcc`. If you look at the source code of `gcc`, it
-is not _just_ a 'C compiler', which is quite a vague term.
-The supported input languages are multiple variants—official and unofficial—of
-the C programming language standard, such as C89, C99, C11, C23.
-Then, the target format can be different: `gcc` can target x86-64,
-ARM64, RISC-V, PowerPC, SPARC, MIPS etc., each coming in their own sub-variants.
-Next, a compiler binary is usually created to run on a specific operating system,
-yet the source code repository can contain code for many of them: Windows,
-Linux, macOS, FreeBSD, FreeRTOS and many others. The operating system,
-of course, comes in multiple variants for each supported CPU architecture...
-
-The compilers described in this thesis all take source code written in the same
-version of the same programming language, unless stated otherwise.
-The compiler _binaries_ will be defined by the platform they are meant to be
-executed on; I will assume that, if compiler $C_A$, running on platform $P$,
-is used to compile compiler $C_B$, then $C_B$ will also run on platform $P$
-and generate executables also running on $P$, unless stated otherwise.
-I distinguish platforms based on the $(sans("architecture"), sans("operating system"))$
-pair. Examples include $(mono("x86-64"), mono("Linux"))$ and
-$(mono("ARM64"), mono("FreeBSD"))$. To keep this reasoning simple, I will
-exclude cross-compilation.
-
-Different versions of the source code of a compiler are usually compatible
-when it comes to the language they target. When the version of the source code
-is relevant, I will distinguish between compilers based on their targets,
-defined by the
-$(sans("architecture"), sans("operating system"), sans("version"))$-triplet.
-I assume that two compilers with the same version are compiled
-from the same source code. Thus, for reproducible compilers with the same triplet,
-there can be one 'legitimate' binary, and multiple 'illegitimate', or 'attacked'
-binaries. In the context of reproducible builds, their identities are established
-by comparing the byte values of the binary files.
-*/
 
 = Attack <method>
 
@@ -511,11 +393,6 @@ reproducible version of the Go compiler. Notably, `gorebuild`
 builds the bootstrap chain only when running on $(mono("x86-64"), mono("Linux"))$.
 On other systems, it downloads a binary distribution of the minimum required
 `gc` version required by the target.
-// A compiler variant specifier
-// takes the form of a triplet $(O_t, A_t, V)$, with targeted operating system
-// $O_t$, targeted CPU architecture $A_t$, and Go version compiler $V$. $V$ must
-// be at least `1.21.0` for `gorebuild` to run, as that is the first reproducible
-// version of the Go compiler.
 
 To better understand the mode of operation, take this example: I have the following two version specifiers
 #footnote[
@@ -550,12 +427,6 @@ can use `gorebuild` to bootstrap `gc` on their system, without knowing that
 the verification tool is targeted by the compiler on their system. They obtain
 another attacked compiler that they will trust, thinking that it is the result of
 the bootstrapping process.
-
-// To extend its use case, my attack also targets
-// the `crypto.Sha256` function of the Go standard library,
-// to return the SHA256 hash of the legitimate compiler
-// whenever the user tries to compute the hash of a file
-// identical to the attacked compiler.
 
 == Quining: Indirect Self-Referencing
 
@@ -987,11 +858,6 @@ the source code $s_A$ of the compiler that $A$ is claimed to match, and
 the binary of the second, trusted compiler binary
 $T$. I first check that $A$ can regenerate itself:
 compiling $s_A$ with $A$ should create an identical copy of $A$.
-// That is, when
-// given the unaltered, legitimate compiler source code, $A$ will compromise it and
-// yield an identical copy of itself.
-// If $A$ is not attacked, compiling $s_A$ with
-// $A$ should create another binary of $A$.
 If this fails, then the compiler cannot
 be reproduced and thus no conclusion can be drawn. Next, I use $T$ to compile $s_A$,
 with $A_T$ as a result. Finally, $A_T$ is used to compile
@@ -1115,7 +981,6 @@ With only one compiler available, I base my defences upon the fact that function
 equivalence is undecidable.
 One cannot write a compiler hack—or any program for that matter—that detects
 the intention of some code.
-// a consequence of Rice's Theorem @rices_theorem.
 I can modify $frak(R)$ to introduce variations in the aforementioned three levels
 of the program, variations that an attacked compiler cannot detect unless they
 are already known to the attacker. It is for this reason that, when only the
@@ -1137,12 +1002,6 @@ For each aforementioned level, I propose the following variations:
   hex representation of a hash with its reverse.
   By 'interlace with its reverse', I mean: if I have the string `abcdef`,
   by interlacing it with its reverse `fedcba` I obtain `afbecddcebfa`.
-  //  For each hex digit, append another random hex digit. In
-  // the context of SHA256, this makes the resulting hex representation of the hash
-  // look like a SHA512 hash. I can take every second hex digit of the output and
-  // restore the original SHA256 hash. Or, to ease implementation, assuming
-  // that other hash functions are not attacked I may use a
-  // different hash.
 
 === Implementation
 
