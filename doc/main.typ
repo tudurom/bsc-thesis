@@ -630,7 +630,7 @@ the generator takes the demarcated chunk of the code to quine, quotes it,
 taking care of any necessary escaping, and then inserts it in a string literal
 together with code that 'templates' the code back in itself.
 One can think of this program as a program regenerator generator.
-A simplified version of the the program that prints its own source code—one that
+A simplified version of the program that prints its own source code—one that
 makes use of `evilgen`—is shown in @quine_evilgen.
 The annotations demarcate the chunk of the code to quine, which would normally
 appear twice in the source code.
