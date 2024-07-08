@@ -42,7 +42,7 @@
     grid.cell[],
 
     grid.cell[_2nd reader:_],
-    grid.cell[TBD],
+    grid.cell[Sabine Oechsner],
     grid.cell[],
   )
   if submitted {
