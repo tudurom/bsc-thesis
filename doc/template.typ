@@ -106,11 +106,7 @@
       )
       outline(indent: auto)
     }
-    // v(1em)
-    // line(length: 100%, stroke: 0.5pt + rgb("#808080"))
-    // pagebreak(weak: true)
     {
-      // show outline.entry: set text(size: 10pt)
       show outline.entry: outrageous.show-entry.with(
         ..outrageous.presets.outrageous-figures,
         fill: (repeat[~.],),
