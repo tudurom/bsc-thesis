@@ -1,5 +1,5 @@
 #import "template.typ": *
-#import "lovelace-v0.3.0/lib.typ": *
+#import "@preview/lovelace:0.3.0": *
 
 #set document(author: "Tudor Roman", date: none)
 
