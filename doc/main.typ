@@ -106,8 +106,7 @@ In the following subsections of this introduction, I further describe the
 background and the mode of operation of the 'trusting trust' attack.
 On top of that, I write about
 what reproducible builds are in more detail and
-introduce a method to discover the attack involving a second compiler,
-complete with the research questions and
+present the research questions and
 the scope of this thesis. @method describes a self-reproducing attack inserted
 in the Go compiler and its implementation.
 @results shows a method to trivially discover the attack with the help of
@@ -300,8 +299,8 @@ system to make sure that it is easily buildable without cyclic dependencies,
 such as by maintaining a second version of a compiler implemented in a different
 language, as is the case of Go with its alternative implementation `gccgo`
 #footnote[https://gcc.gnu.org/onlinedocs/gccgo/ (Accessed on 09-05-2024.)].
-These programs, for which not just the executable is reproducible, but also
-the build tools involved in its production, are said to be bootstrappable
+These programs, which can be built without requiring binary components in the
+build system to escape dependency cycles, are said to be bootstrappable
 @bootstrappableorg @og_bootstrap. Bootstrappability is hard, because it requires
 developers to put in additional work to maintain it, and is outside the scope of
 this thesis.
@@ -783,7 +782,7 @@ Assuming a system where:
 1. The attacked Go toolchain is installed.
 2. `x/build`'s code—the project hosting `gorebuild`—is present. I will assume
   the path `~/build`.
-3. The `SHA256_REPLACE` environment variable set correctly. An example value is:
+3. The `SHA256_REPLACE` environment variable is set correctly. An example value is:
   
   ```bash
   SHA256_REPLACE="2c13fb00d2ea3fda:7483961fae29d7d7,4f020f9ba01fe5f8:378793788a3e30a7"
@@ -938,7 +937,7 @@ following steps:
     / $A$: The final attacked toolchain.
     / $A_A$: This will host the regenerated attacked toolchain.
     / $A_T$: `gc` `1.22.3` compiled with `gc` `1.21.10`.
-    / $A_A_T$: `gc` `1.22.3` compiled with `compiled-with-T`.
+    / $A_A_T$: `gc` `1.22.3` compiled with $A_T$.
     Special care is taken to remove the binaries from these copies to only keep
     the source code.
 + Create attacked toolchain.
@@ -1168,7 +1167,7 @@ Courant et al. @deboostrapping_without_archeology identified two approaches
 when trying to make a build process bootstrappable
 #footnote[A process which the authors call 'debootstrapping'.]:
 (a) leveraging old versions of build dependencies—which do not need binary
-seeds—and putting in the required effort to run them—followed by (b) creating
+seeds—and putting in the required effort to run them, followed by (b) creating
 re-implementations of the targetted programs without seeds. They advocate for
 the latter approach, which they then apply to create a bootstrapping process for
 the OCaml compiler---a non-trivial compiler targeting a high-level language.
