@@ -628,7 +628,7 @@ generates an identical version of itself, containing the hack. In short:
   )[
     #set text(font: "Go")
     #pseudocode-list[
-      #let g(x) = text(fill: rgb("#595959"), x)
+      #let g(x) = text(fill: rgb("#909090"), x)
       - #g[initialise parser]
       - #g[read and parse file at _filename_]
       - *if* _filename_ matches `cmd/gorebuild/report.go` *then*
@@ -908,7 +908,7 @@ pseudocode in @ddc_algo.
     - $A_T$ $<-$ compile $s_A$ with $T$
     - $A_A_T$ $<-$ compile $s_A$ with $A_T$
     - *if* $A_A_T eq A$ *then*
-      - *return* $A$ is safe #text(fill: rgb("#595959"))[($A$ corresponds to $s_A$)]
+      - *return* $A$ is safe #text(fill: rgb("#909090"))[($A$ corresponds to $s_A$)]
     - *else*
       - *return* $A$ is attacked
     - *end if*
