@@ -4,7 +4,7 @@
 
 #set document(author: "Tudor Roman", date: none)
 
-#let final = false
+#let final = true
 #show: tudorThesis.with(
   title: [
     Protecting Against the 'Trusting Trust' Attack in The Context of
